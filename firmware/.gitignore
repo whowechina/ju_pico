@@ -1,4 +1,3 @@
 build
-pico-examples
-pico-sdk
 .vscode
+ju_pico.uf2

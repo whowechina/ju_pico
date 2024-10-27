@@ -489,7 +489,7 @@
       "plot": "../../Production/PCB/IO/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "juto_pico_v1.step",
+      "step": "ju_io_v1.1.step",
       "svg": "",
       "vrml": "iidx_pico.wrl"
     },
