@@ -23,6 +23,9 @@ typedef struct __attribute__((packed)) {
         uint8_t debounce_release;        
         int8_t zones[16];
     } sense;
+    struct {
+        uint8_t rotate;
+    } hid;
     uint8_t reserved[8];
 } ju_cfg_t;
 

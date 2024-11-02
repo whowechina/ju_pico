@@ -45,21 +45,28 @@ static void disp_touch()
     printf("[Touch]\n");
 }
 
+static void disp_hid()
+{
+    printf("[HID]\n");
+    printf("  Rotate: %d degree\n", (ju_cfg->hid.rotate % 4) * 90);
+}
+
 #define ARRAYSIZE(x) (sizeof(x) / sizeof(x[0]))
 
 void handle_display(int argc, char *argv[])
 {
-    const char *usage = "Usage: display [light|sense|touch]\n";
+    const char *usage = "Usage: display [light|sense|touch|hid]\n";
     if (argc > 1) {
         printf(usage);
         return;
     }
 
-    const char *choices[] = {"light", "sense", "touch"};
+    const char *choices[] = {"light", "sense", "touch", "hid"};
     static void (*disp_funcs[])() = {
         disp_light,
         disp_sense,
         disp_touch,
+        disp_hid,
     };
   
     static_assert(ARRAYSIZE(choices) == ARRAYSIZE(disp_funcs),
@@ -104,6 +111,24 @@ static void handle_level(int argc, char *argv[])
     disp_light();
 }
 
+static void handle_rotate(int argc, char *argv[])
+{
+    const char *usage = "Usage: rotate <0|1|2|3>\n";
+    if (argc != 1) {
+        printf(usage);
+        return;
+    }
+
+    int rotate = cli_extract_non_neg_int(argv[0], 0);
+    if ((rotate < 0) || (rotate > 3)) {
+        printf(usage);
+        return;
+    }
+
+    ju_cfg->hid.rotate = rotate;
+    config_changed();
+}
+
 static void handle_save()
 {
     save_request(true);
@@ -113,6 +138,7 @@ void commands_init()
 {
     cli_register("display", handle_display, "Display all config.");
     cli_register("level", handle_level, "Set LED brightness level.");
+    cli_register("rotate", handle_rotate, "Set button rotate angle.");
     cli_register("save", handle_save, "Save config to flash.");
     cli_register("factory", config_factory_reset, "Reset everything to default.");
 }

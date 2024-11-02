@@ -15,11 +15,17 @@
 ju_cfg_t *ju_cfg;
 
 static ju_cfg_t default_cfg = {
+    .light = {
+        .level = 0x80,
+    },
     .sense = {
         .filter = 0x10,
         .debounce_touch = 1,
         .debounce_release = 2,
-     },
+    },
+    .hid = {
+        .rotate = 0,
+    },
 };
 
 ju_runtime_t ju_runtime;

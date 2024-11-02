@@ -127,3 +127,12 @@ void rgb_update()
 {
     drive_led();
 }
+
+void rgb_set_color(unsigned index, uint32_t color)
+{
+    if (index >= ARRAY_SIZE(rgb_buf)) {
+        return;
+    }
+
+    rgb_buf[index] = apply_level(color);
+}

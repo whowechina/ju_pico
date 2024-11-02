@@ -59,7 +59,7 @@ uint8_t const* tud_descriptor_device_cb(void) {
 
 uint8_t const desc_hid_report_joy[] = {
     JU_PICO_REPORT_DESC_JOYSTICK,
-    //JU_PICO_REPORT_DESC_LIGHTS,
+    JU_PICO_REPORT_DESC_LIGHTS,
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR

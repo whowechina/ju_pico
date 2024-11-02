@@ -34,6 +34,11 @@
 
 static void run_lights()
 {
+    uint32_t phase = time_us_32() >> 15;
+    for (int i = 0; i < 8; i++) {
+        uint32_t x = (phase + i * 40) & 0xff;
+        rgb_set_color(i, rgb32_from_hsv(x, 0xff, 0xff));
+    }
 }
 
 static mutex_t core1_io_lock;
@@ -65,8 +70,32 @@ static void core0_loop()
         next_frame += 1000; // 1KHz
 
         button_update();
-
         hid_update();
+    }
+}
+
+
+/* if certain key pressed when booting, enter update mode */
+static void update_check()
+{
+    const uint8_t pins[] = BUTTON_DEF;
+    int pressed = 0;
+    for (int i = 0; i < count_of(pins); i++) {
+        uint8_t gpio = pins[i];
+        gpio_init(gpio);
+        gpio_set_function(gpio, GPIO_FUNC_SIO);
+        gpio_set_dir(gpio, GPIO_IN);
+        gpio_pull_up(gpio);
+        sleep_ms(1);
+        if (!gpio_get(gpio)) {
+            pressed++;
+        }
+    }
+
+    if (pressed >= 4) {
+        sleep_ms(100);
+        reset_usb_boot(0, 2);
+        return;
     }
 }
 
@@ -74,6 +103,8 @@ void init()
 {
     sleep_ms(50);
     board_init();
+
+    update_check();
 
     tusb_init();
     stdio_init_all();
