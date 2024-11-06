@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "ju_touch")(type "KiCad")(uri "${KIPRJMOD}/ju_touch.kicad_sym")(options "")(descr ""))
+)
