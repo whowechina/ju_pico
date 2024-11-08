@@ -32,8 +32,47 @@
 #include "commands.h"
 #include "hid.h"
 
+#define BUTTON_ROTATE_BIT 0x10000
+static bool in_rotate_setting = false;
+
+static void runtime_ctrl()
+{
+    static uint64_t rotate_setting_timeout = 0;
+
+    static uint32_t last_button = 0;
+    uint32_t new_button = button_read();
+    uint32_t triggered = new_button & ~last_button;
+    last_button = new_button;
+
+    uint64_t now = time_us_64();
+    if (triggered & BUTTON_ROTATE_BIT) {
+        if (in_rotate_setting) {
+            ju_cfg->hid.rotate = (ju_cfg->hid.rotate + 1) % 4;
+        } else {
+            in_rotate_setting = true;
+        }
+        rotate_setting_timeout = now + 5000000;
+    }
+
+    if (in_rotate_setting && (now > rotate_setting_timeout)) {
+        in_rotate_setting = false;
+        config_changed();
+    }
+}
+
 static void run_lights()
 {
+    if (in_rotate_setting) {
+        for (int i = 0; i < 4; i++) {
+            uint32_t color = 0;
+            if (ju_cfg->hid.rotate == i) {
+                color = rgb32_from_hsv(i * 64, 0xff, 0xff);
+            }
+            rgb_set_color(i, color);
+        }
+        return;
+    }
+
     uint32_t phase = time_us_32() >> 15;
     for (int i = 0; i < 8; i++) {
         uint32_t x = (phase + i * 40) & 0xff;
@@ -71,6 +110,8 @@ static void core0_loop()
 
         button_update();
         hid_update();
+
+        runtime_ctrl();
     }
 }
 
