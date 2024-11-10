@@ -3,7 +3,7 @@
 
 <img src="doc/main.jpg" width="47%"> <img src="doc/main2.jpg" width="48%">
 
-Ju Pico is physical button based. Ju Pico Touch (Ju Touch) is a ouch screen based variant. This repository contains both of them.
+Ju Pico is physical button based. Ju Pico Touch (Ju Touch) is a touch screen based variant. This repository contains both of them.
 
 Features:
 * Designed for 15.6" portable monitor.
@@ -62,7 +62,7 @@ https://discord.gg/M8f2PPQFEA
 * 8x JST-SH1.0 5-pin SMD connectors (J1 to J4 on IO PCB, and 4 others on button PCBs).
 * 1x JST-SH1.0 3-pin SMD connector (J5), optional for future HID light expansion.
 * 4x JST-SH1.0 dual-end 5-pin cables (pin 1 to pin 1 mapping): 2 cables of 20cm length, and 2 cables of 30cm length.
-* 64x Silicone rubber buttons, **6mm\*7mm**, **4mm** height, with 2 legs. It looks like this:  
+* 64x Silicone rubber buttons, **6mm\*7mm**, **4mm** height, with 2 legs. Buy soft (lower actuation force) ones if possible. It looks like this:  
   <img src="doc/rubber.jpg" width="50%">
 * This is how the I/O board looks after soldering.  
   <img src="doc/pcb_solder_1.jpg" width="70%">  

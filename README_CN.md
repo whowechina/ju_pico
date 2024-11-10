@@ -60,7 +60,7 @@ https://discord.gg/M8f2PPQFEA
 * 8x JST-SH1.0 5P 贴片插座 (`主控 PCB` 上的 J1 到 J4，以及 `按钮 PCB` 上的插座）。
 * 1x JST-SH1.0 3P 贴片插座（J5), 可选，也许未来可扩展 HID 灯光。
 * 4x JST-SH1.0 双头 5P 排线（引脚一对一，经常被叫做双头反向），2 根 20 厘米的，2 根 30 厘米的。
-* 64x 硅橡胶导电橡胶按钮，**6mm\*7mm**, **4mm** 高度，带两个脚。它看上去像这样：  
+* 64x 硅橡胶导电橡胶按钮，**6mm\*7mm**, **4mm** 高度，带两个脚，如果可能，尽量买软（触发力度小）一点的。它看上去像这样：  
   <img src="doc/rubber.jpg" width="50%">
 * `主控 PCB` 焊接完成后这个样子：  
   <img src="doc/pcb_solder_1.jpg" width="70%">  
