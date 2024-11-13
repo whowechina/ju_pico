@@ -108,8 +108,8 @@ Here's what it looks like.
 ### Assembly
 #### Other Materials Needed
 1. Clear soft/flexible glue or UV curing glue. WARNING: Avoid using any cyanoacrylate-based glue, such as 502. Any glue with a similar smell should also be avoided, as they will leave white smoke marks on the acrylic.
-2. 40x **M2\*6mm** screws for the panel.
-3. 4x **M3\*8mm** screws for the banner.
+2. 40x **M2\*6mm** screws, black, for the panel.
+3. 4x **M3\*8mm** screws, black, for the banner.
 
 ### Step by Step
 1. Glue the button bodies to the button seats. Be careful don't let the glue ruin the acrylic. See the "Caution" section below for more details.  
@@ -126,7 +126,7 @@ Here's what it looks like.
    <img src="doc/assembly_3.jpg" width="70%">
 7. Gently put the finished buttons onto the button PCBs.  
    <img src="doc/assembly_4.jpg" width="70%">
-8. Attach the panel part and secure it with (a lot) M2 screws. Be very careful, especially when using a power screwdriver, as the threads in the plastic can easily strip. Lastly put on the banner part and use M3 screws to fix it. And there you go!  
+8. Attach the panel part and secure it with (a lot) M2 screws. Be very careful, 3D print materials are fragile and sensitive to heat. So screw slowly, especially when using a power screwdriver, as the threads in the plastic can easily strip. Lastly put on the banner part and use M3 screws to fix it. And there you go!  
    <img src="doc/assembly_5.jpg" width="70%">
 
 #### Caution
