@@ -44,8 +44,15 @@ static void report_usb_hid()
     if (tud_hid_ready()) {
         hid_report.buttons = do_rotate(button_read() & 0xffff);
         hid_report.aux = button_read() >> 16;
-        hid_report.axis[0] = 127;
-        hid_report.axis[1] = 127;
+
+        const struct {
+            uint8_t x;
+            uint8_t y;
+        } dirs[] = { {0, 127}, {127, 0}, {255, 127}, {127, 255}};
+
+        uint8_t rotate = ju_cfg->hid.rotate % 4;
+        hid_report.axis[0] = dirs[rotate].x;
+        hid_report.axis[1] = dirs[rotate].y;
         tud_hid_n_report(0, REPORT_ID_JOYSTICK, &hid_report, sizeof(hid_report));
     }
 }

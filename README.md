@@ -148,7 +148,8 @@ Each 3D printer and filament has its own tolerance, as does the acrylic cutting 
 
 ### Usage
 * Attach the Ju Pico or Ju Touch to a 15.6-inch portable monitor using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
-* Use the button closest to the left edge (when the 'Ju Pico' or 'Ju Touch' logo is upright) to set button mapping that matches your orientation.
+* Use the button closest to the left edge (when the 'Ju Pico' or 'Ju Touch' logo is upright) to set button mapping that matches your orientation. Analog joystick in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
+  https://greggman.github.io/html5-gamepad-test/
 
 ## CAD Source File
 I'm using OnShape free subscription. It's powerful but it can't archive original designs to local, so I can only share the link here. STL/DXF/DWG files are exported from this online document.  
