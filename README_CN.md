@@ -1,9 +1,7 @@
 # Ju Pico - Jubeat 风格的迷你控制器
 [Click here for the English version of this guide.](README.md)
 
-<img src="doc/main.jpg" width="47%"> <img src="doc/main2.jpg" width="48%">
-
-Ju Pico 是物理按钮的。Ju Pico Touch (Ju Touch) 是触摸屏版。本仓库包含了两个版本。
+<img src="doc/main.jpg" width="47%">
 
 特性：
 * 专为 15.6" 便携显示器设计。
@@ -139,13 +137,6 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 #### 注意
 每台 3D 打印机和每种材料都有自己的公差，亚克力切割服务也是如此。因此，我为按钮座创建了多个版本，你可以尝试并选择最适合你亚克力按钮帽的那个。
 
-## 如何制作 Ju Touch （请耐心等我完成）
-### PCB 和元器件
-### 测试 PCB
-### ITO 蚀刻玻璃
-### 3D 打印
-### 组装
-
 ### 固件
 * UF2 文件在 `Production\Firmware` 文件夹中。
 * 对于新的固件，按住 BOOTSEL 按钮连接到 USB，会出现一个名为 "RPI-RP2" 的磁盘。将 UF2 固件二进制文件拖入其中。就这样。Musec Pico 的底部有一个小孔，它正对着 BOOTSEL 按钮。
@@ -154,8 +145,8 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
   https://googlechromelabs.github.io/serial-terminal/
 
 ### 使用
-* 把 Ju Pico 或 Ju Touch 贴到一个 15.6 英寸的便携显示器上，需要使用 VHB 无痕胶带（国内也叫“点点胶”）。在显示器的外框上用 3 到 4 片就够，注意不要粘到屏幕上。你可以选择你最喜欢的朝向。
-* 用最靠左的按钮（'Ju Pico' 或 'Ju Touch' 标志正立时）来切换按钮映射，使其与你的朝向匹配。HID 汇报的模拟摇杆的位置指示了 Logo 应该在哪侧。你可以使用下面的网站查看摇杆状态。  
+* 把 Ju Pico 贴到一个 15.6 英寸的便携显示器上，需要使用 VHB 无痕胶带（国内也叫“点点胶”）。在显示器的外框上用 3 到 4 片就够，注意不要粘到屏幕上。你可以选择你最喜欢的朝向。
+* 用最靠左的按钮（'Ju Pico' 标志正立时）来切换按钮映射，使其与你的朝向匹配。HID 汇报的模拟摇杆的位置指示了 Logo 应该在哪侧。你可以使用下面的网站查看摇杆状态。  
   https://greggman.github.io/html5-gamepad-test/
 
 ## CAD 源文件

@@ -1,9 +1,7 @@
 # Ju Pico - Jubeat Style Mini Controller
 [点这里可以切换到中文版](README_CN.md)
 
-<img src="doc/main.jpg" width="47%"> <img src="doc/main2.jpg" width="48%">
-
-Ju Pico is physical button based. Ju Pico Touch (Ju Touch) is a touch screen based variant. This repository contains both of them.
+<img src="doc/main.jpg" width="47%">
 
 Features:
 * Designed for 15.6" portable monitor.
@@ -140,13 +138,6 @@ Here's what it looks like.
 #### Caution
 Each 3D printer and filament has its own tolerance, as does the acrylic cutting service. Therefore, I've created multiple versions of the button seat. You can try them and select the one that fits your acrylic button cap perfectly.
 
-## HOW TO BUILD JU PICO (Please wait until I finish)
-### PCB and Components
-### Test the PCB
-### ITO Glass
-### 3D Printing
-### Assembly
-
 ## Firmware
 * UF2 file is in `Production\Firmware` folder.
 * For the new build, hold the BOOTSEL button while connect the USB to a PC, there will be a disk named "RPI-RP2" showed up. Drag the UF2 firmware binary file into it. That's it. There's a small hole at the bottom side of the Ju Pico, it is facing right to the BOOTSEL button.
@@ -155,8 +146,8 @@ Each 3D printer and filament has its own tolerance, as does the acrylic cutting 
   https://googlechromelabs.github.io/serial-terminal/
 
 ### Usage
-* Attach the Ju Pico or Ju Touch to a 15.6-inch portable monitor using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
-* Use the button closest to the left edge (when the 'Ju Pico' or 'Ju Touch' logo is upright) to set button mapping that matches your orientation. Analog joystick in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
+* Attach the Ju Pico to a 15.6-inch portable monitor using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
+* Use the button closest to the left edge (when the 'Ju Pico' logo is upright) to set button mapping that matches your orientation. Analog joystick in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
   https://greggman.github.io/html5-gamepad-test/
 
 ## CAD Source File
