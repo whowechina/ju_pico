@@ -97,13 +97,21 @@ Here's what it looks like.
 * Files are always in milimeter unit, not inch.
 
 #### Parts
-* Frame: `Production\3DPrint\ju_pico_frame.stl`, black.
+* You have two options for the Frame part, choose either one.
+  * Screws are directly threaded into the printed material: `Production\3DPrint\ju_pico_frame.stl`, black. Assembly is easier but the screws may wear out the material over time.
+  * Screws are threaded into the hex nuts: `Production\3DPrint\ju_pico_frame_hexnut.stl`, black. Assembly is a bit more complicated but the screws won't wear out the material.
 * Panel: `Production\3DPrint\ju_pico_panel.stl`, black, print up-side-down with support (use special support material if possible).
 * Banner: `Production\3DPrint\ju_pico_banner.3mf`, multi-color, print up-side-down, mainbody is black, LED windows are transparent, logos are red or orange, use special support material if possible.
 * 16x Button Seats: `Production\3DPrint\ju_pico_button_seat_*.stl`, black, print up-side-down to avoid overhanging. Choose the one that fits your button cap.
 * All together, they look like these.  
   <img src="doc/printed_parts.jpg" width="60%">
 * Note: Files with "bambu" in the name are project files prepared for Bambu Studio.
+* CAUTION: Do not mix use files before and after December 2024, as I made some incompatible changes in early December 2024.
+
+### CNC Aluminum Processing (Optional)
+* If you're into that sleek metal look and don't mind splurging a bit, you can get the frame, panel, and banner parts CNC machined from aluminum.
+* Sandblasting and anodizing can be chosen to make it look even better.
+* The STEP files are in `Production\CNC` folder, the 2D DWG file is the thread tapping drawing for the frame part.
 
 ### Assembly
 #### Other Materials Needed

@@ -96,13 +96,21 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 * 注意文件内的尺寸单位都是毫米，不是英寸。
 
 #### 打印部件
-* 框体: `Production\3DPrint\ju_pico_frame.stl`, 黑色。
+* 框体你有两个选择，选择其一即可。
+  * 直接将螺丝拧入打印材料：`Production\3DPrint\ju_pico_frame.stl`，黑色。组装更容易，但螺丝容易磨损或者拧坏打印材料。
+  * 将螺丝拧到六角螺母上：`Production\3DPrint\ju_pico_frame_hexnut.stl`，黑色。组装稍微复杂一点，但螺母不容易磨损。
 * 盖板: `Production\3DPrint\ju_pico_panel.stl`, 黑色，倒置打印，开启支撑（最好用专门的支撑材料）。
 * 标志面板: `Production\3DPrint\ju_pico_banner.3mf`, 多色，倒置打印，主体黑色，LED 窗口透明色，Logo 用红色或者桔色，开启支撑（最好用专门的支撑材料）。
 * 16x 按钮座: `Production\3DPrint\ju_pico_button_seat_*.stl`, 黑色，倒置打印避免悬空，注意选择和你亚克力按钮帽尺寸最相符的那个文件。
 * 所有这些看上去长这样。  
   <img src="doc/printed_parts.jpg" width="60%">
 * 注意：文件名带 "bambu" 的是给 Bambu Studio 准备的工程文件。
+* 警告：请不要混用 2024 年 12 月之前和之后的文件，因为我在 2024 年 12 月初做了一些不兼容改动。
+
+### CNC 铝合金加工（可选）
+* 如果你喜欢那种金属质感并且不介意多花很多钱，你可以选择用铝合金加工框体、面板和标志部分。
+* 可以选择喷砂和阳极氧化来让它更好看一点。
+* STEP 文件在 `Production\CNC` 文件夹，2D 的 DWG 文件是框体部分的螺纹攻丝图。
 
 ### 组装
 #### 其他所需材料
