@@ -110,6 +110,7 @@ Here's what it looks like.
 * If you're into that sleek metal look and don't mind splurging a bit, you can get the frame, panel, and banner parts CNC machined from aluminum.
 * Sandblasting and anodizing can be chosen to make it look even better.
 * The STEP files are in `Production\CNC` folder, the 2D DWG file is the thread tapping drawing for the frame part.
+* You need to 3D print `Production\3DPrint\ju_pico_led_diffuser_for_cnc.stl` for LED diffusion, use transparent material.
 
 ### Assembly
 #### Other Materials Needed
