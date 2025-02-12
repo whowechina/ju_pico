@@ -115,7 +115,7 @@ Here's what it looks like.
 ### Assembly
 #### Other Materials Needed
 1. Clear soft/flexible glue or UV curing glue. WARNING: Avoid using any cyanoacrylate-based glue, such as 502. Any glue with a similar smell should also be avoided, as they will leave white smoke marks on the acrylic.
-2. 40x **M2\*6mm** screws, black, for the panel.
+2. 40x **M2\*6mm** (for regular frame) or **M2\*7mm** (for hex nut frame) screws, black, for the panel.
 3. 4x **M3\*8mm** screws, black, for the banner.
 
 ### Step by Step
