@@ -1,4 +1,4 @@
 (sym_lib_table
   (version 7)
-  (lib (name "juto_pico")(type "KiCad")(uri "${KIPRJMOD}/juto_pico.kicad_sym")(options "")(descr ""))
+  (lib (name "ju_io")(type "KiCad")(uri "${KIPRJMOD}/ju_io.kicad_sym")(options "")(descr ""))
 )
