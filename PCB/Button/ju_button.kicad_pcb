@@ -1,7 +1,7 @@
 (kicad_pcb
-	(version 20240108)
+	(version 20241229)
 	(generator "pcbnew")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(general
 		(thickness 1.6)
 		(legacy_teardrops no)
@@ -12,25 +12,25 @@
 	)
 	(layers
 		(0 "F.Cu" signal)
-		(31 "B.Cu" signal)
-		(32 "B.Adhes" user "B.Adhesive")
-		(33 "F.Adhes" user "F.Adhesive")
-		(34 "B.Paste" user)
-		(35 "F.Paste" user)
-		(36 "B.SilkS" user "B.Silkscreen")
-		(37 "F.SilkS" user "F.Silkscreen")
-		(38 "B.Mask" user)
-		(39 "F.Mask" user)
-		(40 "Dwgs.User" user "User.Drawings")
-		(41 "Cmts.User" user "User.Comments")
-		(42 "Eco1.User" user "User.Eco1")
-		(43 "Eco2.User" user "User.Eco2")
-		(44 "Edge.Cuts" user)
-		(45 "Margin" user)
-		(46 "B.CrtYd" user "B.Courtyard")
-		(47 "F.CrtYd" user "F.Courtyard")
-		(48 "B.Fab" user)
-		(49 "F.Fab" user)
+		(2 "B.Cu" signal)
+		(9 "F.Adhes" user "F.Adhesive")
+		(11 "B.Adhes" user "B.Adhesive")
+		(13 "F.Paste" user)
+		(15 "B.Paste" user)
+		(5 "F.SilkS" user "F.Silkscreen")
+		(7 "B.SilkS" user "B.Silkscreen")
+		(1 "F.Mask" user)
+		(3 "B.Mask" user)
+		(17 "Dwgs.User" user "User.Drawings")
+		(19 "Cmts.User" user "User.Comments")
+		(21 "Eco1.User" user "User.Eco1")
+		(23 "Eco2.User" user "User.Eco2")
+		(25 "Edge.Cuts" user)
+		(27 "Margin" user)
+		(31 "F.CrtYd" user "F.Courtyard")
+		(29 "B.CrtYd" user "B.Courtyard")
+		(35 "F.Fab" user)
+		(33 "B.Fab" user)
 	)
 	(setup
 		(stackup
@@ -74,10 +74,11 @@
 		)
 		(pad_to_mask_clearance 0)
 		(allow_soldermask_bridges_in_footprints no)
+		(tenting front back)
 		(grid_origin 140.92 114.1)
 		(pcbplotparams
-			(layerselection 0x00010fc_ffffffff)
-			(plot_on_all_layers_selection 0x0000000_00000000)
+			(layerselection 0x00000000_00000000_55555555_5755f5ff)
+			(plot_on_all_layers_selection 0x00000000_00000000_00000000_00000000)
 			(disableapertmacros no)
 			(usegerberextensions yes)
 			(usegerberattributes yes)
@@ -87,7 +88,6 @@
 			(dashed_line_gap_ratio 3.000000)
 			(svgprecision 6)
 			(plotframeref no)
-			(viasonmask no)
 			(mode 1)
 			(useauxorigin no)
 			(hpglpennumber 1)
@@ -95,16 +95,20 @@
 			(hpglpendiameter 15.000000)
 			(pdf_front_fp_property_popups yes)
 			(pdf_back_fp_property_popups yes)
+			(pdf_metadata yes)
+			(pdf_single_document no)
 			(dxfpolygonmode yes)
 			(dxfimperialunits yes)
 			(dxfusepcbnewfont yes)
 			(psnegative no)
 			(psa4output no)
-			(plotreference yes)
-			(plotvalue yes)
-			(plotfptext yes)
+			(plot_black_and_white yes)
 			(plotinvisibletext no)
 			(sketchpadsonfab no)
+			(plotpadnumbers no)
+			(hidednponfab no)
+			(sketchdnponfab yes)
+			(crossoutdnponfab yes)
 			(subtractmaskfromsilk yes)
 			(outputformat 1)
 			(mirror no)
@@ -148,18 +152,6 @@
 				)
 			)
 		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "6872e98d-22d1-44fc-a828-a4bf51328684")
-			(effects
-				(font
-					(size 1.27 1.27)
-					(thickness 0.15)
-				)
-			)
-		)
 		(property "Datasheet" ""
 			(at 0 0 90)
 			(layer "F.Fab")
@@ -188,6 +180,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "bf4673e5-4b3d-4d83-8640-9a9dc41fc14c")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -212,23 +215,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "bf4673e5-4b3d-4d83-8640-9a9dc41fc14c")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "ed9ab6ad-5665-4685-acce-948ddd66c012")
 		)
@@ -422,6 +414,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "e9f56624-a9ef-4e88-8684-93dd5e19b789")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -448,18 +441,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "bb385fde-9391-4f50-b9ed-76b2c4999549")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -492,6 +473,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "c4e73ab6-90c9-4b40-a0c1-a91a72400a39")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -516,23 +508,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "c4e73ab6-90c9-4b40-a0c1-a91a72400a39")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "59522086-9eb4-4f26-af10-44a52ee91d5d")
 		)
@@ -726,6 +707,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "7136b2cd-1aa6-4b0c-b462-65081e3ea427")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -752,18 +734,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "2d86f8c6-5818-42d9-9598-98a5582791a0")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -796,6 +766,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "bcba49ed-5efb-418f-a961-63efeddb2c4b")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -820,23 +801,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "bcba49ed-5efb-418f-a961-63efeddb2c4b")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "e3268097-3fed-4980-8db3-a8e44a7aa464")
 		)
@@ -1030,6 +1000,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "2668d1f8-253d-4cb9-92d1-bdf7317641bf")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -1056,18 +1027,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "5815693d-0772-4af9-b259-e13f7100ce94")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -1100,6 +1059,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "6f70f473-337e-48c1-bfdb-7a91e90202b5")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -1124,23 +1094,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "6f70f473-337e-48c1-bfdb-7a91e90202b5")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "4861e946-cd0c-4737-ae08-34d8b198bbf2")
 		)
@@ -1334,6 +1293,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "f893ae9f-895f-4e77-8f56-40c7464ef124")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -1360,18 +1320,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "c48a82f4-2d81-403a-ba50-edb3fc162c68")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -1404,6 +1352,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "c388b7ee-0c6e-4a0b-8cf3-92330f75f491")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -1428,23 +1387,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "c388b7ee-0c6e-4a0b-8cf3-92330f75f491")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "f9bbab36-bc3d-4b11-aa16-11fe086a7d53")
 		)
@@ -1638,6 +1586,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "3885f924-2164-4910-ad8a-45b94dfd11ef")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -1664,18 +1613,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "0c390cc7-a1e4-4034-b908-56e917b3e5c7")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -1708,6 +1645,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "f70d684f-a22e-443d-a246-1fa88022f2f7")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -1732,23 +1680,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "f70d684f-a22e-443d-a246-1fa88022f2f7")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "13b06fd3-a78f-4e8f-bf69-c45bda9f248b")
 		)
@@ -1942,6 +1879,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "fe9b5599-5868-4bc2-966d-f0e529da951b")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -1968,18 +1906,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "cfce4008-23b8-4d3b-8464-9569b10f4d69")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -2012,6 +1938,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "bda6bfb6-420a-40e5-a555-20ff8dc1dd42")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -2036,23 +1973,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "bda6bfb6-420a-40e5-a555-20ff8dc1dd42")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "7820663f-15a0-4a44-b9d6-e2f4795c36af")
 		)
@@ -2246,6 +2172,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "200512f1-1f6c-4601-9e10-123f9e06675f")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:SH1.0_5P"
 		(layer "F.Cu")
@@ -2272,19 +2199,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:SH1.0_5P"
-			(at -0.5 0 180)
-			(unlocked yes)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "4efb41ac-dbad-4d84-b5be-43aad37efd9e")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -2377,7 +2291,7 @@
 				(width 0.05)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "F.CrtYd")
 			(uuid "c0e3d58a-1ea5-406b-9e0b-1c78da35a298")
 		)
@@ -2455,7 +2369,7 @@
 		(pad "1" smd roundrect
 			(at -2 -2 180)
 			(size 0.6 1.55)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(net 3 "Net-(B1-A)")
 			(pinfunction "Pin_1")
@@ -2465,7 +2379,7 @@
 		(pad "2" smd roundrect
 			(at -1 -2 180)
 			(size 0.6 1.55)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(net 5 "Net-(D1-A)")
 			(pinfunction "Pin_2")
@@ -2475,7 +2389,7 @@
 		(pad "3" smd roundrect
 			(at 0 -2 180)
 			(size 0.6 1.55)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(net 4 "Net-(C1-B)")
 			(pinfunction "Pin_3")
@@ -2485,7 +2399,7 @@
 		(pad "4" smd roundrect
 			(at 1 -2 180)
 			(size 0.6 1.55)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(net 2 "Net-(A1-B)")
 			(pinfunction "Pin_4")
@@ -2495,7 +2409,7 @@
 		(pad "5" smd roundrect
 			(at 2 -2 180)
 			(size 0.6 1.55)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(net 1 "GND")
 			(pinfunction "Pin_5")
@@ -2505,31 +2419,32 @@
 		(pad "MP" smd roundrect
 			(at -3.61 -1.6 180)
 			(size 1.2 2.2)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(uuid "4e282f80-982a-4696-8ebc-80060ffbead6")
 		)
 		(pad "MP" smd roundrect
 			(at -3.6 1.875 180)
 			(size 1.6 2)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.208333)
 			(uuid "de27ecac-c1da-446d-ae2c-1f74a2c2973e")
 		)
 		(pad "MP" smd roundrect
 			(at 3.6 1.875 180)
 			(size 1.6 2)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.208333)
 			(uuid "f297c729-ca44-4053-b92c-4871c23fb843")
 		)
 		(pad "MP" smd roundrect
 			(at 3.61 -1.6 180)
 			(size 1.2 2.2)
-			(layers "F.Cu" "F.Paste" "F.Mask")
+			(layers "F.Cu" "F.Mask" "F.Paste")
 			(roundrect_rratio 0.25)
 			(uuid "df557d6d-230c-4951-becb-b0f3243bbf0f")
 		)
+		(embedded_fonts no)
 		(model "${KIPRJMOD}/3dmodels/SM5B-SRSS-TB.step"
 			(offset
 				(xyz -2 1.7 0.1)
@@ -2571,18 +2486,6 @@
 				)
 			)
 		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "f4ac0677-d74b-4905-8f35-0f52e519d0be")
-			(effects
-				(font
-					(size 1.27 1.27)
-					(thickness 0.15)
-				)
-			)
-		)
 		(property "Datasheet" ""
 			(at 0 0 90)
 			(layer "F.Fab")
@@ -2611,6 +2514,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "54a4d1d2-c65a-41d7-bc6f-13afe315c027")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -2635,23 +2549,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "54a4d1d2-c65a-41d7-bc6f-13afe315c027")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "172029eb-e498-454d-ab4f-ecfe2f3779ac")
 		)
@@ -2845,6 +2748,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "cef9b45f-4494-4b60-bcfe-d63a810b5e04")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -2871,18 +2775,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "d89968ea-225c-4b6a-8d6f-31b6099de47a")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -2915,6 +2807,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "5a327404-2a82-4664-9c8f-9bed13dd76d3")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -2939,23 +2842,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "5a327404-2a82-4664-9c8f-9bed13dd76d3")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "0ff23914-3a64-4fa2-a816-ceef073e387a")
 		)
@@ -3149,6 +3041,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "0e08f4ad-15e1-45e5-bcfa-3f79c4320e30")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -3175,18 +3068,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "108fb7cb-c360-483b-904c-03591f7c4288")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -3219,6 +3100,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "c6f51264-5c54-47f4-82e4-28561c75ebc4")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -3243,23 +3135,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "c6f51264-5c54-47f4-82e4-28561c75ebc4")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "385cad16-4aa7-4486-a744-dddfbcc54e15")
 		)
@@ -3453,6 +3334,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "94d42f05-0ae7-481d-b165-c328d54372f1")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -3479,18 +3361,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "a22d3eba-c965-4bb8-bf8a-199fc569c4dc")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -3523,6 +3393,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "445423bf-47d8-4942-a14b-505e28000729")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -3547,23 +3428,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "445423bf-47d8-4942-a14b-505e28000729")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "43fd804c-884b-4d61-8227-a34115cc0dbd")
 		)
@@ -3757,6 +3627,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "ff6644c9-8ab2-404a-9b4d-a0d93ddb101a")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -3783,18 +3654,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "bfa472f1-579a-4d0d-a1d2-e7be4f35639a")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -3827,6 +3686,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "3fd7ab10-8745-4076-84dc-4bc41b75a4be")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -3851,23 +3721,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "3fd7ab10-8745-4076-84dc-4bc41b75a4be")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "d7718c27-4381-4e96-91bd-a431b17f76ca")
 		)
@@ -4061,6 +3920,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "0b85df5c-d304-4ad3-a5dd-da015722a811")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -4087,18 +3947,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "7ab8e1f5-21c9-424e-af4b-0e6b44a6ddd3")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -4131,6 +3979,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "b2a0282d-006c-4931-8354-e86dfc698a55")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -4155,23 +4014,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "b2a0282d-006c-4931-8354-e86dfc698a55")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "ed3f18e9-6160-47dd-9c41-5571c61051b7")
 		)
@@ -4365,6 +4213,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "219e3ba9-4fa6-4c70-b701-36ad15aa042a")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -4391,18 +4240,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "ae656a56-1602-46c2-8601-a1df691e787a")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -4435,6 +4272,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "2b2efd00-bf71-45fd-b95a-2fbe1da44092")
+		)
 		(fp_arc
 			(start -2.152316 1.271823)
 			(mid -1.974304 -1.533663)
@@ -4459,23 +4307,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "2b2efd00-bf71-45fd-b95a-2fbe1da44092")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "18b9c736-fc13-4df0-8e32-5b2d4e8cc8a8")
 		)
@@ -4669,6 +4506,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "b90f4cb6-c59e-4263-9e1a-c7e80225d9d8")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -4695,18 +4533,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 90)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "99bc0652-88fc-4f6a-961d-0c91fa497b86")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -4739,6 +4565,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "15a2cd7b-1d61-44c7-b2d9-60904c4bf254")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -4763,23 +4600,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "15a2cd7b-1d61-44c7-b2d9-60904c4bf254")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "095fdeaf-aada-490c-966d-cbaedcbb33a7")
 		)
@@ -4973,6 +4799,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "d3b6c87c-5458-43b6-8582-cdfc7aff35bb")
 		)
+		(embedded_fonts no)
 	)
 	(footprint "ju_button:JuRubber"
 		(layer "F.Cu")
@@ -4999,18 +4826,6 @@
 			(effects
 				(font
 					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
-		(property "Footprint" "ju_button:JuRubber"
-			(at 0 0 0)
-			(layer "F.Fab")
-			(hide yes)
-			(uuid "5c5f536b-c8e0-4908-8bcc-e62b4e3d0728")
-			(effects
-				(font
-					(size 1.27 1.27)
 					(thickness 0.15)
 				)
 			)
@@ -5043,6 +4858,17 @@
 		(sheetname "根目录")
 		(sheetfile "ju_button.kicad_sch")
 		(attr smd)
+		(fp_circle
+			(center 0 0)
+			(end 1.6 0)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill yes)
+			(layer "F.Mask")
+			(uuid "ebb6a2a2-0b01-4fa1-897b-ee9eca124679")
+		)
 		(fp_arc
 			(start 2.129814 -1.258527)
 			(mid 1.982747 1.47943)
@@ -5067,23 +4893,12 @@
 		)
 		(fp_circle
 			(center 0 0)
-			(end 1.6 0)
-			(stroke
-				(width 0.1)
-				(type default)
-			)
-			(fill solid)
-			(layer "F.Mask")
-			(uuid "ebb6a2a2-0b01-4fa1-897b-ee9eca124679")
-		)
-		(fp_circle
-			(center 0 0)
 			(end 2.469818 0)
 			(stroke
 				(width 0.1)
 				(type default)
 			)
-			(fill none)
+			(fill no)
 			(layer "Dwgs.User")
 			(uuid "72f66afc-869d-4664-b48c-03f12499509b")
 		)
@@ -5277,6 +5092,7 @@
 			(thermal_bridge_angle 45)
 			(uuid "e993d9c6-24c1-4cd8-a035-3dbbd5193146")
 		)
+		(embedded_fonts no)
 	)
 	(gr_line
 		(start 136.12 68.9)
@@ -7652,4 +7468,5 @@
 			"fc9f631d-f96e-476a-a944-dac046d8f929"
 		)
 	)
+	(embedded_fonts no)
 )
