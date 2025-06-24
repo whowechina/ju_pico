@@ -38,7 +38,7 @@ You can check out my other cool projects.
 I made this project in my personal time with no financial benefit or sponsorship. I will continue to improve the project. I have done my best to ensure that everything is accurate and functional, there's always a chance that mistakes may occur. I cannot be held responsible for any loss of your time or money that may result from using this open source project. Thank you for your understanding.
 
 ## About the License
-It's CC-NC. So DIY for yourself and for your friend, don't make money from it. And plagiarism that doesn’t even dare to mention the original author is not acceptable. Plase note that pooling orders and group buying for raw materials is acceptable. Selling off any leftover components without profit is also acceptable.
+It's CC-NC. So DIY for yourself and for your friend, don't make money from it. And plagiarism that doesn’t even dare to mention the original author is not acceptable. Please note that pooling orders and group buying for raw materials is acceptable. Selling off any leftover components without profit is also acceptable.
 
 If you're interested in buying from me, or for commercial use, please contact me (Discord, QQ group, Wechat group or leave your contact in issue section).
 
@@ -47,8 +47,8 @@ https://discord.gg/M8f2PPQFEA
 
 ## HOW TO BUILD JU PICO
 ### PCB and Components
-* Go JLCPCB and make order with the gerber zip files (latest `Production\PCB\ju_io_xxx.zip` and `Procution\PCB\ju_button_xxx.zip`), regular FR-4 board, black color, **1.6mm** thickness.
-* 1x Rasberry Pico Pi Pico or pin-to-pin compatible clones (U1).  
+* Go JLCPCB and make order with the gerber zip files (latest `Production\PCB\ju_io_xxx.zip` and `Production\PCB\ju_button_xxx.zip`), regular FR-4 board, black color, **1.6mm** thickness.
+* 1x Raspberry Pico Pi Pico or pin-to-pin compatible clones (U1).  
   https://www.raspberrypi.com/products/raspberry-pi-pico
 * 1x USB Type-C socket (918-418K2023S40001 or KH-TYPE-C-16P)
 * 4x WS2812B-3528 RGB LEDs.
@@ -92,7 +92,7 @@ Here's what it looks like.
 * Infill: >=80%.
 * Support: Yes, better with special support material.
 * Glue on bed: Yes, it prevents corner warping.
-* Files are always in milimeter unit, not inch.
+* Files are always in millimeter unit, not inch.
 
 #### Parts
 * You have two options for the Frame part, choose either one.
@@ -148,7 +148,7 @@ Each 3D printer and filament has its own tolerance, as does the acrylic cutting 
 
 ### Usage
 * Attach the Ju Pico to a 15.6-inch portable monitor using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
-* Use the button closest to the left edge (when the 'Ju Pico' logo is upright) to set button mapping that matches your orientation. Analog joystick in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
+* Press the auxiliary button closest to letter 'j" of the logo "Ju Pico" together with the top left main button in the actual placement to set button order that matches your orientation. Analog joystick position in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
   https://greggman.github.io/html5-gamepad-test/
 
 ## CAD Source File

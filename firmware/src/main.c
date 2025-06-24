@@ -32,37 +32,33 @@
 #include "commands.h"
 #include "hid.h"
 
-#define BUTTON_ROTATE_BIT 0x10000
-static bool in_rotate_setting = false;
+#define ROTATE_BUTTON_MASK 0x10000
+static uint64_t rotate_display_timeout = 0;
 
 static void runtime_ctrl()
 {
-    static uint64_t rotate_setting_timeout = 0;
-
-    static uint32_t last_button = 0;
-    uint32_t new_button = button_read();
-    uint32_t triggered = new_button & ~last_button;
-    last_button = new_button;
-
+    uint32_t button = button_read();
     uint64_t now = time_us_64();
-    if (triggered & BUTTON_ROTATE_BIT) {
-        if (in_rotate_setting) {
-            ju_cfg->hid.rotate = (ju_cfg->hid.rotate + 1) % 4;
-        } else {
-            in_rotate_setting = true;
-        }
-        rotate_setting_timeout = now + 5000000;
-    }
 
-    if (in_rotate_setting && (now > rotate_setting_timeout)) {
-        in_rotate_setting = false;
+    if ((button & ROTATE_BUTTON_MASK) && (button & 0xffff)) {
+        rotate_display_timeout = now + 2000000;
+        if (button & 0x0001) {
+            ju_cfg->hid.rotate = 0;
+        } else if (button & 0x1000) {
+            ju_cfg->hid.rotate = 1;
+        } else if (button & 0x8000) {
+            ju_cfg->hid.rotate = 2;
+        } else if (button & 0x0008) {
+            ju_cfg->hid.rotate = 3;
+        }
         config_changed();
     }
 }
 
 static void run_lights()
 {
-    if (in_rotate_setting) {
+    uint64_t now = time_us_64();
+    if (now < rotate_display_timeout) {
         for (int i = 0; i < 4; i++) {
             uint32_t color = 0;
             if (ju_cfg->hid.rotate == i) {
@@ -73,7 +69,7 @@ static void run_lights()
         return;
     }
 
-    uint32_t phase = time_us_32() >> 15;
+    uint32_t phase = now >> 15;
     for (int i = 0; i < 8; i++) {
         uint32_t x = (phase + i * 40) & 0xff;
         rgb_set_color(i, rgb32_from_hsv(x, 0xff, 0xff));

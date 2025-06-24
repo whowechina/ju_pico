@@ -46,7 +46,7 @@ https://discord.gg/M8f2PPQFEA
 
 ## 如何制作 Ju Pico
 ### PCB 及元器件
-* 去 JLCPCB 下单，使用最新的 `主控 PCB` 和 `按钮 PCB`，gerber 文件分别是 `Production\PCB\ju_io_xxx.zip` 和 `Procution\PCB\ju_button_xxx.zip`，常规的 FR-4 板材，黑色，**1.6mm** 厚度。
+* 去 JLCPCB 下单，使用最新的 `主控 PCB` 和 `按钮 PCB`，gerber 文件分别是 `Production\PCB\ju_io_xxx.zip` 和 `Production\PCB\ju_button_xxx.zip`，常规的 FR-4 板材，黑色，**1.6mm** 厚度。
 * 1x Rasberry Pico Pi Pico 或者兼容的克隆板（U1）。  
   https://www.raspberrypi.com/products/raspberry-pi-pico
 * 1x USB Type-C 插座 (918-418K2023S40001 或 KH-TYPE-C-16P)
@@ -147,7 +147,7 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 
 ### 使用
 * 把 Ju Pico 贴到一个 15.6 英寸的便携显示器上，需要使用 VHB 无痕胶带（国内也叫“点点胶”）。在显示器的外框上用 3 到 4 片就够，注意不要粘到屏幕上。你可以选择你最喜欢的朝向。
-* 用最靠左的按钮（'Ju Pico' 标志正立时）来切换按钮映射，使其与你的朝向匹配。HID 汇报的模拟摇杆的位置指示了 Logo 应该在哪侧。你可以使用下面的网站查看摇杆状态。  
+* 按下最靠近 'J' 字母（“Ju Pico” 标志）的辅助按钮和实际摆放下的最左上角的主按钮来切换按键顺序，使其与你的朝向匹配。HID 汇报的模拟摇杆的位置指示了 Logo 应该在哪侧。你可以使用下面的网站查看摇杆状态。  
   https://greggman.github.io/html5-gamepad-test/
 
 ## CAD 源文件
