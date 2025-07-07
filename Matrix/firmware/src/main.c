@@ -34,19 +34,23 @@
 
 static void draw()
 {
-    /* some cool pattern */
-    
-
-    for (int y = 0; y < 64; y++) {
+    for (int y = 31; y < 33; y++) {
         for (int x = 0; x < 64; x++) {
-            int r = x * 2;
-            int g = y * 2;
-            int b = x * 2;
+            int r = x * 4 + 10;
+            int g = y * 4 + 10;
+            int b = x * 4;
             if (r > 255) r = 255;
             if (g > 255) g = 255;
             if (b > 255) b = 255;
             hub75_pixel(x, y, hub75_rgb(r, g, b));
         }
+    }
+}
+
+static void dma_complete(uint row, uint bit)
+{
+    if (row == 0 && bit == 0) {
+        cli_fps_count(2);
     }
 }
 
@@ -131,7 +135,10 @@ void init()
     save_init(board_id_32() ^ 0xcafe1112, &core1_io_lock);
 
     button_init();
-    hub75_init(true);
+
+    hub75_init(true, false);
+    cli_fps_label(2, "LED");
+    hub75_start(dma_complete);
 
     cli_init("ju_matrix>", "\n   << Ju Matrix >>\n"
                             " https://github.com/whowechina\n\n");

@@ -68,26 +68,44 @@ static void handle_help(int argc, char *argv[])
     }
 }
 
-static int fps[2];
-void cli_fps_count(int core)
-{
-    static uint32_t last[2] = {0};
-    static int counter[2] = {0};
+struct {
+    uint calculated;
+    char label[8];
+    uint32_t last;
+    int counter;
+} fps_ctx[8] = {
+    { .label = "Core 0"},
+    { .label = "Core 1"},
+};
 
-    counter[core]++;
+void cli_fps_label(int id, const char *label)
+{
+    strncpy(fps_ctx[id].label, label, sizeof(fps_ctx[id].label) - 1);
+    fps_ctx[id].label[sizeof(fps_ctx[id].label) - 1] = '\0';
+}
+
+void cli_fps_count(int id)
+{
+    fps_ctx[id].counter++;
 
     uint32_t now = time_us_32();
-    if (now - last[core] < 1000000) {
+    if (now - fps_ctx[id].last < 1000000) {
         return;
     }
-    last[core] = now;
-    fps[core] = counter[core];
-    counter[core] = 0;
+    fps_ctx[id].last = now;
+    fps_ctx[id].calculated = fps_ctx[id].counter;
+    fps_ctx[id].counter = 0;
 }
 
 static void handle_fps(int argc, char *argv[])
 {
-    printf("FPS: core 0: %d, core 1: %d\n", fps[0], fps[1]);
+    printf("[FPS]\n");
+    for (int i = 0; i < count_of(fps_ctx); i++) {
+        if (fps_ctx[i].label[0] == '\0') {
+            continue;
+        }
+        printf("  %s: %d\n", fps_ctx[i].label, fps_ctx[i].calculated);
+    }
 }
 
 static void handle_update(int argc, char *argv[])

@@ -20,14 +20,42 @@
 .side_set 2
 
 .wrap_target
-    out pins, 5 [7]    side 0x2 ; Deassert OEn, output row select
-    out x, 27   [7]    side 0x3 ; Pulse LATCH, get OEn pulse width
+    out pins, 5 [1]    side 0x2 ; Deassert OEn, output row select
+    mov x, y    [3]    side 0x3 ; Pulse LATCH
+wait_loop:
+    jmp x-- wait_loop  side 0x2 ; Wait for row to latch
+    out x, 27          side 0x2 ; Get OEn pulse width
 pulse_loop:
     jmp x-- pulse_loop side 0x0 ; Assert OEn for x+1 cycles
 .wrap
 
+.program hub75_row_inverted
+
+; side-set pin 0 is LATCH
+; side-set pin 1 is OEn
+; OUT pins are row select A-E
+;
+; Each FIFO record consists of:
+; - 5-bit row select (LSBs)
+; - Pulse width - 1 (27 MSBs)
+;
+; Repeatedly select a row, pulse LATCH, and generate a pulse of a certain
+; width on OEn.
+
+.side_set 2
+
+.wrap_target
+    out pins, 5 [1]    side 0x3 ; Deassert OEn, output row select
+    mov x, y    [3]    side 0x2 ; Pulse LATCH
+wait_loop:
+    jmp x-- wait_loop  side 0x3 ; Wait for row to latch
+    out x, 27          side 0x3 ; Get OEn pulse width
+pulse_loop:
+    jmp x-- pulse_loop side 0x1 ; Assert OEn for x+1 cycles
+.wrap
+
 % c-sdk {
-static inline void hub75_row_program_init(PIO pio, uint sm, uint offset, uint row_base_pin, uint n_row_pins, uint latch_base_pin) {
+static inline void hub75_row_program_init(PIO pio, uint sm, uint offset, uint row_base_pin, uint n_row_pins, uint latch_base_pin, uint latch_cycles) {
     pio_sm_set_consecutive_pindirs(pio, sm, row_base_pin, n_row_pins, true);
     pio_sm_set_consecutive_pindirs(pio, sm, latch_base_pin, 2, true);
     for (uint i = row_base_pin; i < row_base_pin + n_row_pins; ++i)
@@ -40,6 +68,8 @@ static inline void hub75_row_program_init(PIO pio, uint sm, uint offset, uint ro
     sm_config_set_sideset_pins(&c, latch_base_pin);
     sm_config_set_out_shift(&c, true, true, 32);
     pio_sm_init(pio, sm, offset, &c);
+    pio_sm_exec(pio, sm, pio_encode_out(pio_y, 32));
+    pio_sm_put(pio, sm, latch_cycles);
     pio_sm_set_enabled(pio, sm, true);
 }
 
@@ -71,24 +101,32 @@ static inline void hub75_wait_tx_stall(PIO pio, uint sm) {
 ; Might want to close your eyes before you read this
 public entry_point:
 .wrap_target
-public shift0:
+
+public shift0:              ; R0 G0 B0 (Top half of 64x64 displays)
     pull             side 0 ; gets patched to `out null, n` if n nonzero (otherwise the PULL is required for fencing)
-    in osr, 1        side 0 ; shuffle shuffle shuffle
-    out null, 8      side 0
-    in osr, 1        side 0
-    out null, 8      side 0
-    in osr, 1        side 0
-    out null, 32     side 0 ; Discard remainder of OSR contents
-public shift1:
-    pull             side 0 ; gets patched to out null, n if n is nonzero (otherwise PULL required)
-    in osr, 1        side 1 ; Note this posedge clocks in the data from the previous iteration
-    out null, 8      side 1
-    in osr, 1        side 1
-    out null, 8      side 1
-    in osr, 1        side 1
-    out null, 32     side 1
+    in osr, 1        side 0 ; Red0 N
+    out null, 10     side 0 ; Red0 discard
+
+    in osr, 1        side 0 ; Green0 N
+    out null, 10     side 0 ; Green0 discard
+
+    in osr, 1        side 0 ; Blue0 N
+    out null, 32     side 0 ; Remainder discard
+
+public shift1:              ; R1 G1 B1 (Bottom half of 64x64 displays)
+    pull             side 0 ; gets patched to `out null, n` if n nonzero (otherwise the PULL is required for fencing)
+    in osr, 1        side 1 ; Red1 N
+    out null, 10     side 1 ; Red1 discard
+
+    in osr, 1        side 1 ; Green1 N
+    out null, 10     side 1 ; Green1 discard
+
+    in osr, 1        side 1 ; Blue1 N
+    out null, 32     side 1 ; Remainder discard
+
     in null, 26      side 1 ; Note we are just doing this little manoeuvre here to get GPIOs in the order
     mov pins, ::isr  side 1 ; R0, G0, B0, R1, G1, B1. Can go 1 cycle faster if reversed
+
 .wrap
 ; Note that because the clock edge for pixel n is in the middle of pixel n +
 ; 1, a dummy pixel at the end is required to clock the last piece of genuine
@@ -106,7 +144,7 @@ static inline void hub75_data_rgb888_program_init(PIO pio, uint sm, uint offset,
     pio_sm_config c = hub75_data_rgb888_program_get_default_config(offset);
     sm_config_set_out_pins(&c, rgb_base_pin, 6);
     sm_config_set_sideset_pins(&c, clock_pin);
-    sm_config_set_out_shift(&c, true, true, 24);
+    sm_config_set_out_shift(&c, true, true, 32);
     // ISR shift to left. R0 ends up at bit 5. We push it up to MSB and then flip the register.
     sm_config_set_in_shift(&c, false, false, 32);
     sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
