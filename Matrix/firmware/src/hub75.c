@@ -60,12 +60,36 @@ struct {
 
     .row = 0,
     .bit = 0,
-    .brightness = 6,
+    .brightness = 20,
 
     .clk_polarity = 1,
     .stb_polarity = 1,
     .oe_polarity = 0
 };
+
+uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v)
+{
+    // Convert HSV to RGB
+    if (s == 0) {
+        return hub75_argb(0, v, v, v); // Grayscale
+    }
+
+    uint8_t region = h / 43;
+    uint8_t remainder = (h - (region * 43)) * 6;
+
+    uint8_t p = (v * (255 - s)) >> 8;
+    uint8_t q = (v * (255 - ((s * remainder) >> 8))) >> 8;
+    uint8_t t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
+
+    switch (region) {
+        case 0: return hub75_argb(0, v, t, p);
+        case 1: return hub75_argb(0, q, v, p);
+        case 2: return hub75_argb(0, p, v, t);
+        case 3: return hub75_argb(0, p, q, v);
+        case 4: return hub75_argb(0, t, p, v);
+        default: return hub75_argb(0, v, p, q);
+    }
+}
 
 static void fm6126a_write_register(uint16_t value, uint8_t position)
 {
@@ -123,12 +147,6 @@ void hub75_init(bool fm6126, bool inverted_stb)
 
 static void dma_complete()
 {
-    static uint64_t next_frame = 0;
-
-    if (ctx.dma_complete) {
-        ctx.dma_complete(ctx.row, ctx.bit);
-    }
-
     if (dma_channel_get_irq0_status(ctx.dma_channel)) {
         dma_channel_acknowledge_irq0(ctx.dma_channel);
 
@@ -152,13 +170,14 @@ static void dma_complete()
             ctx.bit++;
             if (ctx.bit == BIT_DEPTH) {
                 ctx.bit = 0;
-                sleep_until(next_frame);
-                next_frame += 8334;
             }
         }
 
-        hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
+        if (ctx.dma_complete) {
+            ctx.dma_complete(ctx.row, ctx.bit);
+        }
 
+        hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
         dma_channel_set_trans_count(ctx.dma_channel, WIDTH * 2, false);
         dma_channel_set_read_addr(ctx.dma_channel, &back_buffer[ctx.row], true);
     }
@@ -220,4 +239,10 @@ void hub75_update()
             back_buffer[row][x * 2 + 1] = canvas[row + row_block][x];
         }
     }
+}
+
+
+void hub75_clear()
+{
+    memset(canvas, 0, sizeof(canvas));
 }

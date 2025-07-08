@@ -17,6 +17,7 @@
 #include "hardware/sync.h"
 #include "hardware/structs/ioqspi.h"
 #include "hardware/structs/sio.h"
+#include "hardware/clocks.h"
 
 #include "tusb.h"
 #include "usb_descriptors.h"
@@ -30,29 +31,7 @@
 #include "cli.h"
 #include "commands.h"
 #include "hid.h"
-#include "hub75.h"
-
-static void draw()
-{
-    for (int y = 31; y < 33; y++) {
-        for (int x = 0; x < 64; x++) {
-            int r = x * 4 + 10;
-            int g = y * 4 + 10;
-            int b = x * 4;
-            if (r > 255) r = 255;
-            if (g > 255) g = 255;
-            if (b > 255) b = 255;
-            hub75_pixel(x, y, hub75_rgb(r, g, b));
-        }
-    }
-}
-
-static void dma_complete(uint row, uint bit)
-{
-    if (row == 0 && bit == 0) {
-        cli_fps_count(2);
-    }
-}
+#include "matrix.h"
 
 static mutex_t core1_io_lock;
 static void core1_loop()
@@ -60,8 +39,7 @@ static void core1_loop()
     while (1) {
         if (mutex_try_enter(&core1_io_lock, NULL)) {
             mutex_exit(&core1_io_lock);
-            draw();
-            hub75_update();
+            matrix_update();
         }
         cli_fps_count(1);
     }
@@ -126,6 +104,8 @@ void init()
 
     update_check();
 
+    set_sys_clock_khz(200000, false);
+
     tusb_init();
     stdio_init_all();
 
@@ -136,9 +116,8 @@ void init()
 
     button_init();
 
-    hub75_init(true, false);
     cli_fps_label(2, "LED");
-    hub75_start(dma_complete);
+    matrix_init();
 
     cli_init("ju_matrix>", "\n   << Ju Matrix >>\n"
                             " https://github.com/whowechina\n\n");

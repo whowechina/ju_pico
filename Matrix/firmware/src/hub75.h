@@ -31,36 +31,67 @@ const static uint16_t GAMMA_10BIT[256] = {
 
 extern uint32_t canvas[64][64];
 
-void hub75_init(bool fm6126, bool invert_stb);
+void hub75_init(bool fm6126, bool inverted_stb);
 void hub75_update();
 
-typedef void (*hub75_dma_complete_cb)(uint row, uint bit);
+typedef void (*hub75_dma_complete_cb)(uint16_t row, uint16_t bit);
 void hub75_start(hub75_dma_complete_cb dma_complete);
 void hub75_stop();
 
 uint16_t hub75_width();
 uint16_t hub75_height();
 
-static inline void hub75_clear()
+void hub75_clear();
+
+static inline uint32_t hub75_argb(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
 {
-    memset(canvas, 0, sizeof(canvas));
+    return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
 static inline uint32_t hub75_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
-    return (r << 16) | (g << 8) | b;
+    return hub75_argb(0xff, r, g, b);
 }
 
-// no memory protecting, so use with care
-static inline void hub75_pixel(int x, int y, uint32_t rgb888)
+static inline void hub75_pixel(int x, int y, uint32_t rgb)
 {
-    uint32_t r = (rgb888 >> 16) & 0xff;
-    uint32_t g = (rgb888 >> 8) & 0xff;
-    uint32_t b = rgb888 & 0xff;
-    r = GAMMA_10BIT[r];
-    g = GAMMA_10BIT[g];
-    b = GAMMA_10BIT[b];
-    canvas[y][x] = b << 20 | g << 10 | r;
+    uint32_t r = GAMMA_10BIT[(rgb >> 16) & 0xff];
+    uint32_t g = GAMMA_10BIT[(rgb >> 8) & 0xff];
+    uint32_t b = GAMMA_10BIT[rgb & 0xff];
+    canvas[y][x] = (b << 20) | (g << 10) | r;
 }
+
+uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v);
+
+static inline uint32_t hub75_alpha(uint8_t alpha, uint32_t rgb)
+{
+    return (alpha << 24) | (rgb & 0x00ffffff);
+}
+
+static inline void hub75_blend(int x, int y, uint32_t argb)
+{
+    uint32_t r1 = GAMMA_10BIT[(argb >> 16) & 0xff];
+    uint32_t g1 = GAMMA_10BIT[(argb >> 8) & 0xff];
+    uint32_t b1 = GAMMA_10BIT[argb & 0xff];
+
+    uint32_t alpha = (argb >> 24) & 0xff;
+
+    if (alpha == 0) {
+        return;
+    } else if (alpha == 255) {
+        canvas[y][x] = (b1 << 20) | (g1 << 10) | r1;
+        return;
+    }
+
+    uint32_t r0 = canvas[y][x] & 0x3ff;
+    uint32_t g0 = (canvas[y][x] >> 10) & 0x3ff;
+    uint32_t b0 = (canvas[y][x] >> 20) & 0x3ff;
+
+    uint32_t r_mix = (r1 * alpha + r0 * (255 - alpha)) >> 8;
+    uint32_t g_mix = (g1 * alpha + g0 * (255 - alpha)) >> 8;
+    uint32_t b_mix = (b1 * alpha + b0 * (255 - alpha)) >> 8;
+    canvas[y][x] = (b_mix << 20) | (g_mix << 10) | r_mix;
+}
+
 
 #endif
