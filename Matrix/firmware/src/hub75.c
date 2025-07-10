@@ -60,7 +60,7 @@ struct {
 
     .row = 0,
     .bit = 0,
-    .brightness = 20,
+    .brightness = 18,
 
     .clk_polarity = 1,
     .stb_polarity = 1,

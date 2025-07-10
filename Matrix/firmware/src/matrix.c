@@ -7,6 +7,8 @@
 #include "cli.h"
 #include "matrix.h"
 #include "hub75.h"
+#include "marker.h"
+#include "resource.h"
 
 static void dma_complete(uint16_t row, uint16_t bit)
 {
@@ -39,7 +41,7 @@ void draw_button(uint8_t x, uint8_t y, uint32_t border, uint32_t solid)
     }
 }
 
-static void draw_door(uint8_t x, uint8_t y, uint32_t progress, bool arrow)
+void draw_door(uint8_t x, uint8_t y, uint32_t progress, bool arrow)
 {
     const uint32_t solid = hub75_rgb(0, 140, 140);
     int col = x * 17;
@@ -67,7 +69,7 @@ static void draw_door(uint8_t x, uint8_t y, uint32_t progress, bool arrow)
     }
 }
 
-static void draw_sector_fast(uint8_t x, uint8_t y, uint32_t progress)
+void draw_sector_fast(uint8_t x, uint8_t y, uint32_t progress)
 {
     const uint32_t solid = hub75_rgb(255, 100, 50);
     int col = x * 17;
@@ -132,7 +134,7 @@ static void draw_sector_fast(uint8_t x, uint8_t y, uint32_t progress)
     }
 }
 
-static void draw_closing_door_smooth(uint8_t x, uint8_t y, uint32_t progress, bool invert)
+void draw_closing_door_smooth(uint8_t x, uint8_t y, uint32_t progress, bool invert)
 {
     const uint32_t solid = hub75_rgb(100, 255, 100);
     int col = x * 17;
@@ -161,109 +163,19 @@ static void draw_closing_door_smooth(uint8_t x, uint8_t y, uint32_t progress, bo
     }
 }
 
-// 简化的整数三角函数表 (256个值，0-360度)
-static const int sin_table[] = {
-    0, 4, 9, 13, 18, 22, 27, 31, 36, 40, 44, 49, 53, 58, 62, 66, 71, 75, 79, 83,
-    88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 131, 135, 139, 143, 146, 150, 153, 157, 160,
-    164, 167, 171, 174, 177, 181, 184, 187, 190, 193, 196, 199, 202, 205, 208, 211, 213, 216, 219, 221,
-    224, 226, 229, 231, 233, 235, 238, 240, 242, 244, 246, 247, 249, 251, 252, 254, 255, 257, 258, 259,
-    260, 262, 263, 264, 265, 266, 267, 267, 268, 269, 269, 270
-};
-
-// 获取sin值 (输入0-360度，输出-270到270的定点数)
-static int get_sin(int deg) {
-    deg = deg % 360;
-    if (deg < 0) deg += 360;
-    
-    if (deg <= 90) return sin_table[deg];
-    else if (deg <= 180) return sin_table[180 - deg];
-    else if (deg <= 270) return -sin_table[deg - 180];
-    else return -sin_table[360 - deg];
-}
-
-// 获取cos值 (cos(x) = sin(x + 90))
-static int get_cos(int deg) {
-    return get_sin(deg + 90);
-}
-
-// 旋转函数：将canvas中(x,y)位置的13x13格子按指定角度旋转
-void rotate_13x13(uint32_t canvas[][64], int x, int y, int deg) {
-    // 临时缓冲区存储旋转后的结果
-    uint32_t temp[13][13];
-    
-    // 清空临时缓冲区
-    for (int i = 0; i < 13; i++) {
-        for (int j = 0; j < 13; j++) {
-            temp[i][j] = 0;
-        }
+/* progress: [0..1000] */
+static void draw_marker(int marker_id, marker_type type, uint8_t x, uint8_t y, uint32_t progress)
+{
+    if ((marker_id < 0) || (marker_id >= marker_count)) {
+        return;
     }
     
-    // 获取旋转矩阵的整数值 (放大270倍)
-    int cos_deg = get_cos(deg);
-    int sin_deg = get_sin(deg);
-    
-    // 中心点 (6, 6)
-    int center = 6;
-    
-    // 对每个输出像素进行反向变换采样
-    for (int out_i = 0; out_i < 13; out_i++) {
-        for (int out_j = 0; out_j < 13; out_j++) {
-            // 输出像素相对于中心的坐标
-            int out_x = (out_i - center) * 270;
-            int out_y = (out_j - center) * 270;
-            
-            // 反向旋转得到源坐标 (使用-deg)
-            int src_x = (out_x * cos_deg + out_y * sin_deg) / 270 + center * 270;
-            int src_y = (-out_x * sin_deg + out_y * cos_deg) / 270 + center * 270;
-            
-            // 转换为像素坐标 (270倍放大)
-            int src_i = src_x / 270;
-            int src_j = src_y / 270;
-            
-            // 检查边界
-            if (src_i >= 0 && src_i < 12 && src_j >= 0 && src_j < 12) {
-                // 计算小数部分用于双线性插值
-                int frac_x = src_x % 270;
-                int frac_y = src_y % 270;
-                
-                // 获取四个相邻像素的颜色值 (从canvas中读取)
-                uint32_t c00 = canvas[x + src_i][y + src_j];
-                uint32_t c10 = canvas[x + src_i + 1][y + src_j];
-                uint32_t c01 = canvas[x + src_i][y + src_j + 1];
-                uint32_t c11 = canvas[x + src_i + 1][y + src_j + 1];
-                
-                // 双线性插值计算最终颜色
-                // 简化版本：如果有任何相邻像素有颜色，就使用最亮的那个
-                uint32_t result_color = 0;
-                if (c00 || c10 || c01 || c11) {
-                    // 选择最亮的颜色作为结果
-                    result_color = c00;
-                    if ((c10 & 0x3FF3FF3FF) > (result_color & 0x3FF3FF3FF)) result_color = c10;
-                    if ((c01 & 0x3FF3FF3FF) > (result_color & 0x3FF3FF3FF)) result_color = c01;
-                    if ((c11 & 0x3FF3FF3FF) > (result_color & 0x3FF3FF3FF)) result_color = c11;
-                    
-                    // 根据距离调整亮度来实现抗锯齿
-                    int weight = 270 - ((frac_x + frac_y) / 2);
-                    if (weight < 270) {
-                        uint8_t alpha = (weight * 255) / 270;
-                        result_color = hub75_alpha(alpha, result_color);
-                    }
-                }
-                
-                temp[out_i][out_j] = result_color;
-            }
-        }
-    }
-    
-    // 将旋转结果写回canvas
-    for (int i = 0; i < 13; i++) {
-        for (int j = 0; j < 13; j++) {
-            canvas[x + i][y + j] = temp[i][j];
-        }
-    }
+    const marker_t *marker = &markers[marker_id];
+
+    marker_draw_progress(marker, type, x * 17, y * 17, progress);
 }
 
-static void rotate_90(int x, int y, int times)
+void rotate_90(int x, int y, int times)
 {
     times = times % 4;
     
@@ -304,33 +216,50 @@ static void rotate_90(int x, int y, int times)
 
 static void draw()
 {
-    int phase = (time_us_64() / 1000) % 1001;
+    static struct {
+        int id;
+        int judge;
+        uint64_t begin;
+        bool approaching;
+        uint64_t start;
+    } effects[16] = {0};
+
+    uint64_t now = time_us_64() / 1000;
     for (int i = 0; i < 16; i++) {
-        int col = i % 4;
-        int row = i / 4;
-        int progress = (phase + (i * 1000 / 15)) % 1100;
-        if (progress > 1000) {
-            progress = 1000;
+        if (effects[i].begin > 0) {
+            if (now > effects[i].begin) {
+                effects[i].id = rand() % marker_count;
+                effects[i].judge = MARKER_APPROACH;
+                effects[i].approaching = true;
+                effects[i].start = now;
+                effects[i].begin = 0;
+            } else {
+                marker_clear(i % 4, i / 4, 0x000000);
+                continue;
+            }
         }
-        int choice = i % 6;
-        if (choice == 0) {
-            draw_sector_fast(col, row, progress);
-        } else if (choice == 1) {
-            draw_door(col, row, progress, false);
-        } else if (choice == 2) {
-            draw_door(col, row, progress, true);
-        } else if (choice == 3) {
-            // 正常关门效果 - 上下
-            draw_closing_door_smooth(col, row, progress, false);
-        } else if (choice == 4) {
-            // 反转关门效果
-            draw_closing_door_smooth(col, row, progress, true);
-        } else {
-            // 扇形展开（重复使用）
-            draw_sector_fast(col, row, progress);
+        int progress = (now - effects[i].start) * 1000 / 533;
+        if (!effects[i].approaching && effects[i].judge == MARKER_MISS) {
+            progress *= 2;
+        }
+        if (progress >= 1000) {
+            if (effects[i].approaching) {
+                effects[i].approaching = false;
+                effects[i].judge = MARKER_PERFECT + rand() % 5;
+                effects[i].start = now;
+            } else {
+                effects[i].begin = now + rand() % (2*1000);
+            }
+            continue;
         }
 
-        rotate_90(col, row, col + row);
+        int col = i % 4;
+        int row = i / 4;
+        if (effects[i].approaching) {
+            draw_marker(effects[i].id, MARKER_APPROACH, col, row, progress);
+        } else {
+            draw_marker(effects[i].id, effects[i].judge, col, row, progress);
+        }
     }
 }
 
@@ -349,6 +278,6 @@ void matrix_update()
 {
     hub75_clear();
     draw();
-    overlay();
+    if (0) overlay();
     hub75_update();
 }
