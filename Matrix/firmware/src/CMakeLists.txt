@@ -5,7 +5,7 @@ add_compile_options(-Wall -Werror -Wfatal-errors -O3)
 
 function(make_firmware board board_def)
     add_executable(${board}
-        main.c button.c hub75.c matrix.c save.c config.c marker.c resource.c
+        main.c button.c hub75.c matrix.c save.c config.c font.c marker.c resource.c
         cli.c commands.c hid.c usb_descriptors.c)
     target_compile_definitions(${board} PUBLIC ${board_def})
     pico_enable_stdio_usb(${board} 1)

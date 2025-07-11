@@ -246,3 +246,13 @@ void hub75_clear()
 {
     memset(canvas, 0, sizeof(canvas));
 }
+
+void hub75_fill(uint32_t rgb)
+{
+    uint32_t color = hub75_color(rgb);
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
+            canvas[y][x] = color;
+        }
+    }
+}

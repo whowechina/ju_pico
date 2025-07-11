@@ -1,6 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
 
 #include "pico/time.h"
 
@@ -8,6 +9,7 @@
 #include "matrix.h"
 #include "hub75.h"
 #include "marker.h"
+#include "font.h"
 #include "resource.h"
 
 static void dma_complete(uint16_t row, uint16_t bit)
@@ -164,7 +166,7 @@ void draw_closing_door_smooth(uint8_t x, uint8_t y, uint32_t progress, bool inve
 }
 
 /* progress: [0..1000] */
-static void draw_marker(int marker_id, marker_type type, uint8_t x, uint8_t y, uint32_t progress)
+static void draw_marker(int marker_id, marker_type type, uint8_t x, uint8_t y, uint32_t time_ms)
 {
     if ((marker_id < 0) || (marker_id >= marker_count)) {
         return;
@@ -172,7 +174,7 @@ static void draw_marker(int marker_id, marker_type type, uint8_t x, uint8_t y, u
     
     const marker_t *marker = &markers[marker_id];
 
-    marker_draw_progress(marker, type, x * 17, y * 17, progress);
+    marker_draw(marker, type, x * 17, y * 17, time_ms);
 }
 
 void rotate_90(int x, int y, int times)
@@ -214,7 +216,29 @@ void rotate_90(int x, int y, int times)
     }
 }
 
-static void draw()
+
+static void run_combo()
+{
+    static int combo = 0;
+    static uint64_t last_update = 0;
+    static int font_id = 0;
+
+    uint64_t now = time_us_64() / 1000;
+    if (now - last_update > 5000) {
+        font_id = rand() % font_count;
+        last_update = now;
+    }
+
+    combo = (now / 100) % 10000;
+    uint32_t color = hub75_hsv2rgb(time_us_64() / 20000, 200, 0);
+    const font_t *font = &fonts[font_id]; // 使用随机字体
+    char str[16];
+    snprintf(str, sizeof(str), "%d", combo);
+
+    font_draw_string(font, 32, 17, str, color, ALIGN_CENTER, -1);
+}
+
+static void run_marker()
 {
     static struct {
         int id;
@@ -228,27 +252,23 @@ static void draw()
     for (int i = 0; i < 16; i++) {
         if (effects[i].begin > 0) {
             if (now > effects[i].begin) {
-                effects[i].id = rand() % marker_count;
+                effects[i].id = i % marker_count;
                 effects[i].judge = MARKER_APPROACH;
                 effects[i].approaching = true;
                 effects[i].start = now;
                 effects[i].begin = 0;
             } else {
-                marker_clear(i % 4, i / 4, 0x000000);
                 continue;
             }
         }
-        int progress = (now - effects[i].start) * 1000 / 533;
-        if (!effects[i].approaching && effects[i].judge == MARKER_MISS) {
-            progress *= 2;
-        }
-        if (progress >= 1000) {
+
+        if (marker_is_end(&markers[effects[i].id], effects[i].judge, now - effects[i].start)) {
             if (effects[i].approaching) {
                 effects[i].approaching = false;
-                effects[i].judge = MARKER_PERFECT + rand() % 5;
+                effects[i].judge = MARKER_MISS;
                 effects[i].start = now;
             } else {
-                effects[i].begin = now + rand() % (2*1000);
+                effects[i].begin = now + rand() % 100;
             }
             continue;
         }
@@ -256,28 +276,17 @@ static void draw()
         int col = i % 4;
         int row = i / 4;
         if (effects[i].approaching) {
-            draw_marker(effects[i].id, MARKER_APPROACH, col, row, progress);
+            draw_marker(effects[i].id, MARKER_APPROACH, col, row, now - effects[i].start);
         } else {
-            draw_marker(effects[i].id, effects[i].judge, col, row, progress);
-        }
-    }
-}
-
-void overlay()
-{
-    int off = abs((time_us_32() / 100000 % 80) - 40);
-    uint32_t color = 0x20000000 | hub75_hsv2rgb(time_us_32() / 20000, 200, 255);
-    for (int i = 0; i < 23; i++) {
-        for (int j = 0; j < 23; j++) {
-            hub75_blend(off + i, off + j, color);
+            draw_marker(effects[i].id, effects[i].judge, col, row, now - effects[i].start);
         }
     }
 }
 
 void matrix_update()
 {
-    hub75_clear();
-    draw();
-    if (0) overlay();
+    hub75_fill(hub75_hsv2rgb(time_us_32() / 50000, 200, 100));
+    run_combo();
+    run_marker();
     hub75_update();
 }

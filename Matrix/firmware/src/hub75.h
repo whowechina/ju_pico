@@ -42,6 +42,7 @@ uint16_t hub75_width();
 uint16_t hub75_height();
 
 void hub75_clear();
+void hub75_fill(uint32_t rgb);
 
 static inline uint32_t hub75_argb(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
 {
@@ -53,12 +54,17 @@ static inline uint32_t hub75_rgb(uint8_t r, uint8_t g, uint8_t b)
     return hub75_argb(0xff, r, g, b);
 }
 
-static inline void hub75_pixel(int x, int y, uint32_t rgb)
+static inline uint32_t hub75_color(uint32_t rgb)
 {
     uint32_t r = GAMMA_10BIT[(rgb >> 16) & 0xff];
     uint32_t g = GAMMA_10BIT[(rgb >> 8) & 0xff];
     uint32_t b = GAMMA_10BIT[rgb & 0xff];
-    canvas[y][x] = (b << 20) | (g << 10) | r;
+    return (b << 20) | (g << 10) | r;
+}
+
+static inline void hub75_pixel(int x, int y, uint32_t rgb)
+{
+    canvas[y][x] = hub75_color(rgb);
 }
 
 uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v);

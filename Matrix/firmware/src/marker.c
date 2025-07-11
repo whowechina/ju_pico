@@ -4,6 +4,32 @@
 #include "hub75.h"
 #include "marker.h"
 
+static inline uint8_t extract_alpha(uint8_t bit_per_pixel, uint8_t byte, int sector)
+{
+    switch (bit_per_pixel) {
+        case 1:
+            return (byte >> (7 - sector)) & 0x01 ? 0xff : 0x00;
+        case 2:
+            return ((byte >> (6 - sector * 2)) & 0x03) * 85;
+        case 4:
+            return ((byte >> (4 - sector * 4)) & 0x0f) * 17;
+        case 8:
+            return byte;
+        default:
+            return 0;
+    }
+}
+
+static inline int get_alpha(const animation_t *ani, uint8_t x, uint8_t y, int frame)
+{
+    int pixels = ani->image_size * ani->image_size;
+    int start_pixel = frame * pixels + y * ani->image_size + x;
+    int pixel_per_byte = 8 / ani->alpha_depth;
+    int byte = start_pixel / pixel_per_byte;
+    int section = start_pixel % pixel_per_byte;
+    return extract_alpha(ani->alpha_depth, ani->alpha[byte], section);
+}
+
 static void draw_pal8(const animation_t *ani, uint8_t x, uint8_t y, int frame) 
 {
     int pixels = ani->image_size * ani->image_size;
@@ -14,7 +40,25 @@ static void draw_pal8(const animation_t *ani, uint8_t x, uint8_t y, int frame)
         for (int i = 0; i < ani->image_size; i++) {
             uint8_t idx = row[i];
             uint32_t color = ani->palette[idx];
-            hub75_pixel(x + i, y + j, color);
+            uint8_t alpha = get_alpha(ani, i, j, frame);
+            hub75_blend(x + i, y + j, (alpha << 24) | color);
+        }
+    }
+}
+
+/* 5 bit pal, 3 bit alpha encoded in pixels */
+static void draw_pal5(const animation_t *ani, uint8_t x, uint8_t y, int frame) 
+{
+    int pixels = ani->image_size * ani->image_size;
+    const uint8_t *img = ani->img8 + frame * pixels;
+
+    for (int j = 0; j < ani->image_size; j++) {
+        const uint8_t *row = img + j * ani->image_size;
+        for (int i = 0; i < ani->image_size; i++) {
+            uint8_t idx = row[i];
+            uint32_t color = ani->palette[idx & 0x1f];
+            uint8_t alpha = (idx >> 5) * 255 / 7;
+            hub75_blend(x + i, y + j, (alpha << 24) | color);
         }
     }
 }
@@ -38,7 +82,8 @@ static void draw_pal4(const animation_t *ani, uint8_t x, uint8_t y, int frame)
             }
             
             uint32_t color = ani->palette[idx];
-            hub75_pixel(x + i, y + j, color);
+            uint8_t alpha = get_alpha(ani, i, j, frame);
+            hub75_blend(x + i, y + j, (alpha << 24) | color);
         }
     }
 }
@@ -49,7 +94,7 @@ static void draw_24bit(const animation_t *ani, uint8_t x, uint8_t y, int frame)
     for (int j = 0; j < ani->image_size; j++) {
         for (int i = 0; i < ani->image_size; i++) {
             uint32_t color = img[j * ani->image_size + i];
-            hub75_pixel(x + i, y + j, color);
+            hub75_blend(x + i, y + j, color);
         }
     }
 }
@@ -62,6 +107,8 @@ static void draw_frame(const animation_t *ani, uint8_t x, uint8_t y, uint32_t fr
 
     if (ani->color_depth == 4) {
         draw_pal4(ani, x, y, frame);
+    } else if (ani->color_depth == 5) {
+        draw_pal5(ani, x, y, frame);
     } else if (ani->color_depth == 8) {
         draw_pal8(ani, x, y, frame);
     } else if (ani->color_depth == 24) {
@@ -69,79 +116,33 @@ static void draw_frame(const animation_t *ani, uint8_t x, uint8_t y, uint32_t fr
     }
 }
 
-static inline uint32_t progress_to_frame(const animation_t *ani, uint32_t progress)
+static inline int time_to_frame(int fps, int frame_num, uint32_t time_ms)
 {
-    uint32_t total_frames = ani->frame_num;
-    uint32_t frame = (progress * total_frames) / 1000;
-    if (frame >= total_frames) {
-        frame = total_frames - 1;
-    }
-
-    return frame;
+    uint32_t frame_time_us = 1000000 / fps;
+    uint32_t frame = time_ms * 1000 / frame_time_us;
+    return frame >= frame_num ? - 1 : frame;
 }
 
-void marker_draw(const marker_t *marker, marker_type type, uint8_t x, uint8_t y, uint32_t frame)
+bool marker_is_end(const marker_t *marker, marker_type type, uint32_t time_ms)
 {
-    if (!marker) {
+    if (!marker || type < 0 || type >= 6) {
+        return true;
+    }
+    uint32_t frame_time_us = 1000000 / marker->fps;
+    return time_ms * 1000 > marker->types[type].frame_num * frame_time_us;
+}
+
+void marker_draw(const marker_t *marker, marker_type type, uint8_t x, uint8_t y, uint32_t time_ms)
+{
+    if ((!marker) || (marker->fps == 0)) {
         return;
     }
 
     const animation_t *ani = NULL;
 
-    switch (type) {
-        case MARKER_APPROACH:
-            ani = &marker->approach;
-            break;
-        case MARKER_PERFECT:
-            ani = &marker->perfect;
-            break;
-        case MARKER_GREAT:
-            ani = &marker->great;
-            break;
-        case MARKER_GOOD:
-            ani = &marker->good;
-            break;
-        case MARKER_POOR:
-            ani = &marker->poor;
-            break;
-        case MARKER_MISS:
-            ani = &marker->miss;
-            break;
-    }
+    ani = &marker->types[type];
 
-    draw_frame(ani, x, y, frame);
-}
-
-void marker_draw_progress(const marker_t *marker, marker_type type, uint8_t x, uint8_t y, uint32_t progress)
-{
-    if (!marker) {
-        return;
-    }
-
-    const animation_t *ani = NULL;
-
-    switch (type) {
-        case MARKER_APPROACH:
-            ani = &marker->approach;
-            break;
-        case MARKER_PERFECT:
-            ani = &marker->perfect;
-            break;
-        case MARKER_GREAT:
-            ani = &marker->great;
-            break;
-        case MARKER_GOOD:
-            ani = &marker->good;
-            break;
-        case MARKER_POOR:
-            ani = &marker->poor;
-            break;
-        case MARKER_MISS:
-            ani = &marker->miss;
-            break;
-    }
-
-    draw_frame(ani, x, y, progress_to_frame(ani, progress));
+    draw_frame(ani, x, y, time_to_frame(marker->fps, ani->frame_num, time_ms));
 }
 
 void marker_clear(uint8_t x, uint8_t y, uint32_t color)
