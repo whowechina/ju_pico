@@ -183,8 +183,23 @@ static void dma_complete()
     }
 }
 
+static int fill_dma_chn = -1;
+static dma_channel_config fill_dma_cfg;  // 全局配置，只设置一次
+
+static void init_fill_dma()
+{
+    if (fill_dma_chn < 0) {
+        fill_dma_chn = dma_claim_unused_channel(true);        
+        fill_dma_cfg = dma_channel_get_default_config(fill_dma_chn);
+        channel_config_set_transfer_data_size(&fill_dma_cfg, DMA_SIZE_32);
+        channel_config_set_read_increment(&fill_dma_cfg, false);
+        channel_config_set_write_increment(&fill_dma_cfg, true);
+    }
+}
+
 void hub75_start(hub75_dma_complete_cb cb)
 {
+    init_fill_dma();
     hub75_gpio_init();
     if (ctx.fm6126) {
         fm6126a_setup();
@@ -244,15 +259,16 @@ void hub75_update()
 
 void hub75_clear()
 {
-    memset(canvas, 0, sizeof(canvas));
+    hub75_fill(0);
 }
 
 void hub75_fill(uint32_t rgb)
 {
-    uint32_t color = hub75_color(rgb);
-    for (int y = 0; y < HEIGHT; ++y) {
-        for (int x = 0; x < WIDTH; ++x) {
-            canvas[y][x] = color;
-        }
-    }
+    static uint32_t fill_color;
+    fill_color = hub75_color(rgb);
+    
+    dma_channel_configure(fill_dma_chn, &fill_dma_cfg,
+                          canvas, &fill_color, WIDTH * HEIGHT, true);
+    
+    dma_channel_wait_for_finish_blocking(fill_dma_chn);
 }
