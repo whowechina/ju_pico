@@ -64,7 +64,7 @@ uint8_t button_num()
 static uint32_t button_reading;
 
 /* If a switch flips, it freezes for a while */
-#define DEBOUNCE_FREEZE_TIME_US 3000
+#define DEBOUNCE_FREEZE_TIME_US 50000
 void button_update()
 {
     uint64_t now = time_us_64();
