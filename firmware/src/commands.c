@@ -129,6 +129,15 @@ static void handle_rotate(int argc, char *argv[])
     config_changed();
 }
 
+static void handle_stat(int argc, char *argv[])
+{
+    printf("[STAT]\n");
+    for (int i = 0; i < button_num(); i++) {
+        printf("  Key %2d: %6lu\n", i + 1, button_stat_keydown(i));
+    }
+    button_clear_stat();
+}
+
 static void handle_save()
 {
     save_request(true);
@@ -139,6 +148,7 @@ void commands_init()
     cli_register("display", handle_display, "Display all config.");
     cli_register("level", handle_level, "Set LED brightness level.");
     cli_register("rotate", handle_rotate, "Set button rotate angle.");
+    cli_register("stat", handle_stat, "Display statistics.");
     cli_register("save", handle_save, "Save config to flash.");
     cli_register("factory", config_factory_reset, "Reset everything to default.");
 }

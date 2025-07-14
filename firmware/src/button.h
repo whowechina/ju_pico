@@ -21,4 +21,7 @@ uint32_t button_read();
 uint8_t button_real_gpio(int id);
 uint8_t button_default_gpio(int id);
 
+uint32_t button_stat_keydown(uint8_t id);
+void button_clear_stat();
+
 #endif
