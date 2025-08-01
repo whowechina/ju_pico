@@ -2,6 +2,7 @@
 #define MARKER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct {
     uint8_t color_depth; /* 4, 8, or 24 */
@@ -18,8 +19,8 @@ typedef struct {
 
 typedef struct {
     uint8_t fps;
-    animation_t types[6];
-} marker_t;
+    animation_t modes[6];
+} marker_res_t;
 
 typedef enum {
     MARKER_APPROACH = 0,
@@ -27,11 +28,13 @@ typedef enum {
     MARKER_GREAT,
     MARKER_GOOD,
     MARKER_POOR,
-    MARKER_MISS
-} marker_type;
+    MARKER_MISS,
+    MARKER_MODE_NUM,
+} marker_mode_t;
 
-bool marker_is_end(const marker_t *marker, marker_type type, uint32_t time_ms);
-void marker_draw(const marker_t *marker, marker_type type, uint8_t x, uint8_t y, uint32_t time_ms);
-void marker_clear(uint8_t x, uint8_t y, uint32_t color);
+unsigned int marker_num();
+bool marker_is_end(int marker, marker_mode_t mode, uint32_t elapsed);
+void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed);
+void marker_clear(int x, int y, uint32_t color);
 
 #endif

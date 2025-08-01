@@ -24,14 +24,10 @@
 #include "hub75.h"
 #include "config.h"
 
-#define WIDTH 64
-#define HEIGHT 64
-#define BIT_DEPTH 10
-
 #define HUB75_DATA_PIN(n) (HUB75_DATA_BASE + (n))
 
-uint32_t canvas[HEIGHT][WIDTH] = {0};
-uint32_t back_buffer[HEIGHT / 2][WIDTH * 2] = {0};
+uint32_t canvas[PANEL_HEIGHT][PANEL_WIDTH] = {0};
+uint32_t back_buffer[PANEL_HEIGHT / 2][PANEL_WIDTH * 2] = {0};
 
 struct {
     PIO pio;
@@ -102,8 +98,8 @@ static void fm6126a_write_register(uint16_t value, uint8_t position)
     gpio_put(HUB75_CLK_PIN, !ctx.clk_polarity);
     gpio_put(HUB75_STROBE_PIN, !ctx.stb_polarity);
 
-    uint8_t threshold = WIDTH - position;
-    for(int i = 0; i < WIDTH; i++) {
+    uint8_t threshold = PANEL_WIDTH - position;
+    for(int i = 0; i < PANEL_WIDTH; i++) {
         int j = i % 16;
         bool b = value & (1 << j);
 
@@ -167,7 +163,7 @@ static void start_next_scan()
     }
 
     hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
-    dma_channel_set_trans_count(ctx.dma_channel, WIDTH * 2, false);
+    dma_channel_set_trans_count(ctx.dma_channel, PANEL_WIDTH * 2, false);
     dma_channel_set_read_addr(ctx.dma_channel, &back_buffer[ctx.row], true);
 }
 
@@ -194,7 +190,7 @@ static void dma_complete()
         if (ctx.row == (1 << HUB75_ROWSEL_N_PINS)) {
             ctx.row = 0;
             ctx.bit++;
-            if (ctx.bit == BIT_DEPTH) {
+            if (ctx.bit == PANEL_BIT_DEPTH) {
                 ctx.bit = 0;
             }
         }
@@ -247,7 +243,7 @@ void hub75_start(hub75_dma_complete_cb cb)
     hub75_row_program_init(ctx.pio, ctx.sm_row, ctx.row_prog, HUB75_ROWSEL_BASE, 5, HUB75_STROBE_PIN, latch_cycles);
 
     // Prevent flicker in Python caused by the smaller dataset just blasting through the PIO too quickly
-    pio_sm_set_clkdiv(ctx.pio, ctx.sm_data, WIDTH <= 32 ? 2.0f : 1.0f);
+    pio_sm_set_clkdiv(ctx.pio, ctx.sm_data, PANEL_WIDTH <= 32 ? 2.0f : 1.0f);
 
     ctx.dma_channel = dma_claim_unused_channel(true);
     dma_channel_config config = dma_channel_get_default_config(ctx.dma_channel);
@@ -265,7 +261,7 @@ void hub75_start(hub75_dma_complete_cb cb)
     ctx.bit = 0;
 
     hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
-    dma_channel_set_trans_count(ctx.dma_channel, WIDTH * 2, false);
+    dma_channel_set_trans_count(ctx.dma_channel, PANEL_WIDTH * 2, false);
     dma_channel_set_read_addr(ctx.dma_channel, back_buffer, true);
 }
 
@@ -293,7 +289,7 @@ void hub75_update()
 {
     const uint row_block = (1 << HUB75_ROWSEL_N_PINS);
     for (int row = 0; row < row_block; ++row) {
-        for (int x = 0; x < WIDTH; ++x) {
+        for (int x = 0; x < PANEL_WIDTH; ++x) {
             uint32_t a = canvas[row][x];
             uint32_t b = canvas[row + row_block][x];
             if (matrix_cfg->panel.rgb_order == 1) {
@@ -323,8 +319,8 @@ void hub75_fill(uint32_t rgb)
     static uint32_t fill_color;
     fill_color = hub75_color(rgb);
     
-    dma_channel_configure(fill_dma_chn, &fill_dma_cfg,
-                          canvas, &fill_color, WIDTH * HEIGHT, true);
-    
+    dma_channel_configure(fill_dma_chn, &fill_dma_cfg, canvas, &fill_color,
+                          PANEL_WIDTH * PANEL_HEIGHT, true);
+
     dma_channel_wait_for_finish_blocking(fill_dma_chn);
 }

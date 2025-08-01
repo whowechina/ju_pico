@@ -10,6 +10,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define PANEL_WIDTH 64
+#define PANEL_HEIGHT 64
+#define PANEL_BIT_DEPTH 10
+
 const static uint16_t GAMMA_10BIT[256] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -66,6 +70,9 @@ static inline uint32_t hub75_color(uint32_t rgb)
 
 static inline void hub75_pixel(int x, int y, uint32_t rgb)
 {
+    if ((x < 0) ||( x >= PANEL_WIDTH) || (y < 0) || (y >= PANEL_HEIGHT)) {
+        return;
+    }
     canvas[y][x] = hub75_color(rgb);
 }
 

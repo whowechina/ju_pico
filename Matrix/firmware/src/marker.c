@@ -3,6 +3,7 @@
 
 #include "hub75.h"
 #include "marker.h"
+#include "resource.h"
 
 static inline uint8_t extract_alpha(uint8_t bit_per_pixel, uint8_t byte, int sector)
 {
@@ -116,36 +117,55 @@ static void draw_frame(const animation_t *ani, uint8_t x, uint8_t y, uint32_t fr
     }
 }
 
-static inline int time_to_frame(int fps, int frame_num, uint32_t time_ms)
+static inline int calc_frame(int fps, int frame_num, uint32_t elapsed)
 {
     uint32_t frame_time_us = 1000000 / fps;
-    uint32_t frame = time_ms * 1000 / frame_time_us;
+    uint32_t frame = elapsed / frame_time_us;
     return frame >= frame_num ? - 1 : frame;
 }
 
-bool marker_is_end(const marker_t *marker, marker_type type, uint32_t time_ms)
+unsigned int marker_num()
 {
-    if (!marker || type < 0 || type >= 6) {
-        return true;
-    }
-    uint32_t frame_time_us = 1000000 / marker->fps;
-    return time_ms * 1000 > marker->types[type].frame_num * frame_time_us;
+    return marker_count;
 }
 
-void marker_draw(const marker_t *marker, marker_type type, uint8_t x, uint8_t y, uint32_t time_ms)
+static inline bool marker_mode_is_valid(int marker, marker_mode_t mode)
 {
-    if ((!marker) || (marker->fps == 0)) {
+    if ((marker < 0) || (marker >= marker_count)) {
+        return false;
+    }
+    if ((mode < 0) || (mode >= MARKER_MODE_NUM)) {
+        return false;
+    }
+    return true;
+}
+
+bool marker_is_end(int marker, marker_mode_t mode, uint32_t elapsed)
+{
+    if (!marker_mode_is_valid(marker, mode)) {
+        return true;
+    }
+
+    const marker_res_t *res = &marker_res[marker];
+
+    uint32_t frame_time_us = 1000000 / res->fps;
+    return elapsed > res->modes[mode].frame_num * frame_time_us;
+}
+
+void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
+{
+    if (!marker_mode_is_valid(marker, mode)) {
         return;
     }
 
-    const animation_t *ani = NULL;
+    const marker_res_t *res = &marker_res[marker];
+    const animation_t *ani = &res->modes[mode];
+    int frame = calc_frame(res->fps, ani->frame_num, elapsed);
 
-    ani = &marker->types[type];
-
-    draw_frame(ani, x, y, time_to_frame(marker->fps, ani->frame_num, time_ms));
+    draw_frame(ani, x, y, frame);
 }
 
-void marker_clear(uint8_t x, uint8_t y, uint32_t color)
+void marker_clear(int x, int y, uint32_t color)
 {
     int col = x * 17;
     int row = y * 17;

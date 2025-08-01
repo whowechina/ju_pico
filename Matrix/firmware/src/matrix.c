@@ -9,8 +9,9 @@
 #include "matrix.h"
 #include "hub75.h"
 #include "marker.h"
-#include "font.h"
+#include "grid.h"
 #include "resource.h"
+#include "font.h"
 #include "config.h"
 
 static void dma_complete(uint16_t row, uint16_t bit)
@@ -166,18 +167,6 @@ void draw_closing_door_smooth(uint8_t x, uint8_t y, uint32_t progress, bool inve
     }
 }
 
-/* progress: [0..1000] */
-static void draw_marker(int marker_id, marker_type type, uint8_t x, uint8_t y, uint32_t time_ms)
-{
-    if ((marker_id < 0) || (marker_id >= marker_count)) {
-        return;
-    }
-    
-    const marker_t *marker = &markers[marker_id];
-
-    marker_draw(marker, type, x * 17, y * 17, time_ms);
-}
-
 void rotate_90(int x, int y, int times)
 {
     times = times % 4;
@@ -238,50 +227,26 @@ static void run_combo()
     font_draw_string(font, 32, 17, str, color, ALIGN_CENTER, -1);
 }
 
-static void run_marker()
+static void run_grid()
 {
-    static struct {
-        int id;
-        int judge;
-        uint64_t schedule;
-        bool approaching;
-        uint64_t start;
-    } effects[16] = {0};
-
-    uint64_t now = time_us_64() / 1000;
-    for (int i = 0; i < 16; i++) {
-        if (effects[i].schedule > 0) {
-            if (now > effects[i].schedule) {
-                effects[i].id = i % marker_count;
-                effects[i].judge = MARKER_APPROACH;
-                effects[i].approaching = true;
-                effects[i].start = now;
-                effects[i].schedule = 0;
-            } else {
-                continue;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (!grid_is_active(i, j)) {
+                if ((grid_last_marker(i, j) != -1) &&
+                    (grid_last_mode(i, j) == MARKER_APPROACH)) {
+                     grid_judge(i, j, rand() % (MARKER_MODE_NUM - 1) + 1);
+                } else {
+                    if (rand() % 10000 > 9980) {
+                        grid_start(i, j);
+                    }
+                }
             }
-        }
-
-        if (((effects[i].schedule == 0) && (effects[i].start == 0)) ||
-            marker_is_end(&markers[effects[i].id], effects[i].judge, now - effects[i].start)) {
-            if (effects[i].approaching) {
-                effects[i].approaching = false;
-                effects[i].judge = MARKER_MISS;
-                effects[i].start = now;
-            } else {
-                effects[i].schedule = now + rand() % 100;
-            }
-            continue;
-        }
-
-        int col = i % 4;
-        int row = i / 4;
-        if (effects[i].approaching) {
-            draw_marker(effects[i].id, MARKER_APPROACH, col, row, now - effects[i].start);
-        } else {
-            draw_marker(effects[i].id, effects[i].judge, col, row, now - effects[i].start);
         }
     }
+    if (rand() % 1000 > 990) {
+        grid_set_marker(rand() % marker_num());
+    }
+    grid_render();
 }
 
 void matrix_update()
@@ -292,7 +257,7 @@ void matrix_update()
 
     hub75_fill(hub75_argb(255, 1, 1, 1));
     run_combo();
-    run_marker();
+    run_grid();
     hub75_update();
 }
 

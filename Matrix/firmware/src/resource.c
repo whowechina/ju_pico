@@ -55,7 +55,7 @@
 #include "res/digit_font_papyrus_15x32_4bit.h"
 #include "res/digit_font_sana_17x32_4bit.h"
 
-const marker_t markers[] = {
+const marker_res_t marker_res[] = {
     DEF_mk0001_cyber_c8_a8,
     DEF_mk0002_flower_c8_a8,
         // DEF_mk0003_afro_c8_a8,
@@ -102,7 +102,7 @@ const marker_t markers[] = {
         // DEF_mk0037_s_c_u_c8_a8
 };
 
-const int marker_count = count_of(markers);
+const int marker_count = count_of(marker_res);
 
 const font_t fonts[] = {
     DEF_digit_font_dincondensedbold_16x32_4bit,
