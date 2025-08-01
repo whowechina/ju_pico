@@ -11,6 +11,7 @@
 #include "marker.h"
 #include "font.h"
 #include "resource.h"
+#include "config.h"
 
 static void dma_complete(uint16_t row, uint16_t bit)
 {
@@ -21,7 +22,7 @@ static void dma_complete(uint16_t row, uint16_t bit)
 
 void matrix_init()
 {
-    hub75_init(true, false);
+    hub75_init(matrix_cfg->panel.fm6126, false);
     hub75_start(dma_complete);
 }
 
@@ -216,7 +217,6 @@ void rotate_90(int x, int y, int times)
     }
 }
 
-
 static void run_combo()
 {
     static int combo = 0;
@@ -230,7 +230,7 @@ static void run_combo()
     }
 
     combo = (now / 100) % 10000;
-    uint32_t color = hub75_hsv2rgb(time_us_64() / 20000, 200, 0);
+    uint32_t color = hub75_hsv2rgb(time_us_64() / 20000, 200, 10);
     const font_t *font = &fonts[font_id]; // 使用随机字体
     char str[16];
     snprintf(str, sizeof(str), "%d", combo);
@@ -243,32 +243,33 @@ static void run_marker()
     static struct {
         int id;
         int judge;
-        uint64_t begin;
+        uint64_t schedule;
         bool approaching;
         uint64_t start;
     } effects[16] = {0};
 
     uint64_t now = time_us_64() / 1000;
     for (int i = 0; i < 16; i++) {
-        if (effects[i].begin > 0) {
-            if (now > effects[i].begin) {
+        if (effects[i].schedule > 0) {
+            if (now > effects[i].schedule) {
                 effects[i].id = i % marker_count;
                 effects[i].judge = MARKER_APPROACH;
                 effects[i].approaching = true;
                 effects[i].start = now;
-                effects[i].begin = 0;
+                effects[i].schedule = 0;
             } else {
                 continue;
             }
         }
 
-        if (marker_is_end(&markers[effects[i].id], effects[i].judge, now - effects[i].start)) {
+        if (((effects[i].schedule == 0) && (effects[i].start == 0)) ||
+            marker_is_end(&markers[effects[i].id], effects[i].judge, now - effects[i].start)) {
             if (effects[i].approaching) {
                 effects[i].approaching = false;
                 effects[i].judge = MARKER_MISS;
                 effects[i].start = now;
             } else {
-                effects[i].begin = now + rand() % 100;
+                effects[i].schedule = now + rand() % 100;
             }
             continue;
         }
@@ -285,8 +286,19 @@ static void run_marker()
 
 void matrix_update()
 {
-    hub75_fill(hub75_hsv2rgb(time_us_32() / 50000, 200, 100));
+    if (hub75_is_paused()) {
+        hub75_resume();
+    }
+
+    hub75_fill(hub75_argb(255, 1, 1, 1));
     run_combo();
     run_marker();
     hub75_update();
+}
+
+void matrix_pause()
+{
+    if (!hub75_is_paused()) {
+        hub75_pause();
+    }
 }

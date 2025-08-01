@@ -36,7 +36,9 @@ void hub75_update();
 
 typedef void (*hub75_dma_complete_cb)(uint16_t row, uint16_t bit);
 void hub75_start(hub75_dma_complete_cb dma_complete);
-void hub75_stop();
+void hub75_pause();
+void hub75_resume();
+bool hub75_is_paused();
 
 uint16_t hub75_width();
 uint16_t hub75_height();

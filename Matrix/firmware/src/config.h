@@ -13,6 +13,11 @@
 
 typedef struct __attribute__((packed)) {
     struct {
+        bool fm6126;
+        uint8_t rgb_order; // 0: RGB, 1: RBG
+        uint8_t reserved[15];
+    } panel;
+    struct {
         uint8_t level;
         uint8_t reserved[15];
     } light;

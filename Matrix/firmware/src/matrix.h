@@ -4,4 +4,6 @@
 void matrix_init();
 void matrix_update();
 
+void matrix_pause();
+
 #endif

@@ -22,6 +22,7 @@
 
 #include "board_defs.h"
 #include "hub75.h"
+#include "config.h"
 
 #define WIDTH 64
 #define HEIGHT 64
@@ -48,6 +49,8 @@ struct {
     const bool stb_polarity;
     const bool oe_polarity;
     hub75_dma_complete_cb dma_complete;
+    bool request_pause;
+    bool paused;
 } ctx = {
     .pio = pio0,
     .sm_data = 0,
@@ -64,7 +67,10 @@ struct {
 
     .clk_polarity = 1,
     .stb_polarity = 1,
-    .oe_polarity = 0
+    .oe_polarity = 0,
+
+    .request_pause = false,
+    .paused = false,
 };
 
 uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v)
@@ -145,6 +151,26 @@ void hub75_init(bool fm6126, bool inverted_stb)
     ctx.inverted_stb = inverted_stb;
 }
 
+static void start_next_scan()
+{
+    if (ctx.request_pause) {
+        pio_sm_set_enabled(ctx.pio, ctx.sm_data, false);
+        pio_sm_set_enabled(ctx.pio, ctx.sm_row, false);
+        ctx.paused = true;
+        return;
+    }
+    
+    if (ctx.paused) {
+        ctx.paused = false;
+        pio_sm_set_enabled(ctx.pio, ctx.sm_data, true);
+        pio_sm_set_enabled(ctx.pio, ctx.sm_row, true);
+    }
+
+    hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
+    dma_channel_set_trans_count(ctx.dma_channel, WIDTH * 2, false);
+    dma_channel_set_read_addr(ctx.dma_channel, &back_buffer[ctx.row], true);
+}
+
 static void dma_complete()
 {
     if (dma_channel_get_irq0_status(ctx.dma_channel)) {
@@ -177,9 +203,7 @@ static void dma_complete()
             ctx.dma_complete(ctx.row, ctx.bit);
         }
 
-        hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
-        dma_channel_set_trans_count(ctx.dma_channel, WIDTH * 2, false);
-        dma_channel_set_read_addr(ctx.dma_channel, &back_buffer[ctx.row], true);
+        start_next_scan();
     }
 }
 
@@ -245,13 +269,45 @@ void hub75_start(hub75_dma_complete_cb cb)
     dma_channel_set_read_addr(ctx.dma_channel, back_buffer, true);
 }
 
+void hub75_pause()
+{
+    ctx.request_pause = true;
+    while (!ctx.paused) {
+        sleep_ms(1);
+    }
+    sleep_ms(1);
+}
+
+void hub75_resume()
+{
+    ctx.request_pause = false;
+    start_next_scan();
+}
+
+bool hub75_is_paused()
+{
+    return ctx.paused;
+}
+
 void hub75_update()
 {
     const uint row_block = (1 << HUB75_ROWSEL_N_PINS);
     for (int row = 0; row < row_block; ++row) {
         for (int x = 0; x < WIDTH; ++x) {
-            back_buffer[row][x * 2] = canvas[row][x];
-            back_buffer[row][x * 2 + 1] = canvas[row + row_block][x];
+            uint32_t a = canvas[row][x];
+            uint32_t b = canvas[row + row_block][x];
+            if (matrix_cfg->panel.rgb_order == 1) {
+                uint32_t a_h10b = (a >> 20);
+                a <<= 10;
+                a &= 0x3fffffff;
+                a |= a_h10b;
+                uint32_t b_h10b = (b >> 20);
+                b <<= 10;
+                b &= 0x3fffffff;
+                b |= b_h10b;
+            }
+            back_buffer[row][x * 2] = a;
+            back_buffer[row][x * 2 + 1] = b;
         }
     }
 }

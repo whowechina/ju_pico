@@ -38,9 +38,13 @@ static void core1_loop()
 {
     while (1) {
         if (mutex_try_enter(&core1_io_lock, NULL)) {
-            mutex_exit(&core1_io_lock);
             matrix_update();
+            mutex_exit(&core1_io_lock);
+        } else {
+            matrix_pause();
+            sleep_ms(2);
         }
+        sleep_us(100);
         cli_fps_count(1);
     }
 }
@@ -61,7 +65,7 @@ static void core0_loop()
         tud_task();
 
         cli_run();
-        //save_loop();
+        save_loop();
         cli_fps_count(0);
 
         button_update();
