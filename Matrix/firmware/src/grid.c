@@ -2,36 +2,28 @@
 #include <stdint.h>
 #include "pico/time.h"
 
+#include "config.h"
 #include "marker.h"
 #include "grid.h"
 
 typedef struct {
     bool active;
-    int8_t marker;
-    int8_t mode;
+    uint8_t marker;
+    uint8_t mode;
+    uint64_t schedule;
     uint64_t start;
 } grid_cell_t;
 
 static struct {
-    uint8_t marker;
     grid_cell_t grid[4][4];
-} ctx;
-
-void grid_set_marker(int marker)
-{
-    if ((marker < 0) || (marker >= marker_num())) {
-        return;
-    }
-
-    ctx.marker = marker % marker_num();
-}
+} ctx = { 0 };
 
 static inline bool out_of_bound(int col, int row)
 {
     return (col < 0) || (col >= 4) || (row < 0) || (row >= 4);
 }
 
-void grid_start(int col, int row)
+void grid_test(int col, int row, int marker)
 {
     if (out_of_bound(col, row)) {
         return;
@@ -39,11 +31,31 @@ void grid_start(int col, int row)
 
     grid_cell_t *cell = &ctx.grid[col][row];
 
-    cell->marker = ctx.marker;
+    cell->marker = marker;
     cell->mode = MARKER_APPROACH;
-
+    cell->schedule = 0;
     cell->start = time_us_64();
     cell->active = true;
+}
+
+void grid_start(int col, int row, bool override)
+{
+    if (out_of_bound(col, row)) {
+        return;
+    }
+
+    if (!override) {
+        if (ctx.grid[col][row].active || (ctx.grid[col][row].schedule > 0)) {
+            return;
+        }
+    }
+
+    grid_cell_t *cell = &ctx.grid[col][row];
+
+    cell->marker = matrix_cfg->game.marker;
+    cell->mode = MARKER_APPROACH;
+
+    cell->schedule = time_us_64() + matrix_cfg->game.start_delay_ms * 1000;
 }
 
 void grid_judge(int col, int row, marker_mode_t mode)
@@ -90,16 +102,41 @@ int grid_last_mode(int col, int row)
     return ctx.grid[col][row].mode;
 }
 
-void grid_render()
+static uint64_t update_time;
+
+void grid_update()
 {
-    uint64_t now = time_us_64();
+    update_time = time_us_64();
+
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             grid_cell_t *cell = &ctx.grid[col][row];
-            uint64_t elapsed = now - cell->start;
-            if (marker_is_end(cell->marker, cell->mode, elapsed)) {
-                cell->active = false;
+            if ((cell->schedule > 0) && (update_time >= cell->schedule)) {
+                cell->schedule = 0;
+                cell->start = update_time;
+                cell->active = true;
+                continue;
             }
+
+            if (!cell->active) {
+                continue;
+            }
+
+            uint64_t elapsed = update_time - cell->start;
+            if (!marker_is_end(cell->marker, cell->mode, elapsed)) {
+                continue;
+            }
+            cell->active = false;
+        }
+    }
+}
+
+void grid_render()
+{
+    for (int col = 0; col < 4; col++) {
+        for (int row = 0; row < 4; row++) {
+            grid_cell_t *cell = &ctx.grid[col][row];
+            uint64_t elapsed = update_time - cell->start;
             if (cell->active) {
                 marker_draw(col * 17, row * 17, cell->marker, cell->mode, elapsed);
             }

@@ -36,8 +36,8 @@ tusb_desc_device_t desc_device_joy = {
     .bDeviceProtocol = 0x00,
     .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor = 0xcaba,
-    .idProduct = 0x0022,
+    .idVendor = 0x6a62,
+    .idProduct = 0x494f,
     .bcdDevice = 0x0100,
 
     .iManufacturer = 1,
@@ -59,7 +59,6 @@ uint8_t const* tud_descriptor_device_cb(void) {
 
 uint8_t const desc_hid_report_joy[] = {
     MATRIX_PICO_REPORT_DESC_JOYSTICK,
-    MATRIX_PICO_REPORT_DESC_LIGHTS,
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR

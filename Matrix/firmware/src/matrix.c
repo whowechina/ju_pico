@@ -9,10 +9,12 @@
 #include "matrix.h"
 #include "hub75.h"
 #include "marker.h"
+#include "score.h"
 #include "grid.h"
 #include "resource.h"
 #include "font.h"
 #include "config.h"
+#include "ubthax.h"
 
 static void dma_complete(uint16_t row, uint16_t bit)
 {
@@ -208,45 +210,17 @@ void rotate_90(int x, int y, int times)
 
 static void run_combo()
 {
-    static int combo = 0;
-    static uint64_t last_update = 0;
-    static int font_id = 0;
-
-    uint64_t now = time_us_64() / 1000;
-    if (now - last_update > 5000) {
-        font_id = rand() % font_count;
-        last_update = now;
-    }
-
-    combo = (now / 100) % 10000;
-    uint32_t color = hub75_hsv2rgb(time_us_64() / 20000, 200, 10);
-    const font_t *font = &fonts[font_id]; // 使用随机字体
-    char str[16];
-    snprintf(str, sizeof(str), "%d", combo);
-
-    font_draw_string(font, 32, 17, str, color, ALIGN_CENTER, -1);
+    score_draw_combo();
 }
 
 static void run_grid()
 {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (!grid_is_active(i, j)) {
-                if ((grid_last_marker(i, j) != -1) &&
-                    (grid_last_mode(i, j) == MARKER_APPROACH)) {
-                     grid_judge(i, j, rand() % (MARKER_MODE_NUM - 1) + 1);
-                } else {
-                    if (rand() % 10000 > 9980) {
-                        grid_start(i, j);
-                    }
-                }
-            }
-        }
-    }
-    if (rand() % 1000 > 990) {
-        grid_set_marker(rand() % marker_num());
-    }
+    grid_update();
     grid_render();
+}
+
+static void run_result()
+{
 }
 
 void matrix_update()
@@ -255,9 +229,15 @@ void matrix_update()
         hub75_resume();
     }
 
-    hub75_fill(hub75_argb(255, 1, 1, 1));
-    run_combo();
-    run_grid();
+    hub75_fill(matrix_cfg->game.color.background);
+    ubt_phase_t phase = ubthax_get_phase();
+    if ((phase == UBT_STARTING) || (phase == UBT_INGAME)) {
+        run_combo();
+        run_grid();
+    } else if (phase == UBT_RESULT) {
+        run_result();
+    } else {
+    }
     hub75_update();
 }
 

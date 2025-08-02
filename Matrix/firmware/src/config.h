@@ -15,12 +15,24 @@ typedef struct __attribute__((packed)) {
     struct {
         bool fm6126;
         uint8_t rgb_order; // 0: RGB, 1: RBG
-        uint8_t reserved[15];
+        uint8_t level;
+        uint8_t reserved[13];
     } panel;
     struct {
-        uint8_t level;
-        uint8_t reserved[15];
-    } light;
+        uint8_t marker;
+        uint16_t start_delay_ms;
+        struct {
+            uint32_t background;
+            uint32_t combo;
+            uint32_t score;
+            uint32_t reserved[5];
+        } color;
+        struct {
+            uint8_t combo;
+            uint8_t score;
+            uint8_t reserved[6];
+        } font;
+    } game;
     struct {
     } hid;
     uint8_t reserved[8];

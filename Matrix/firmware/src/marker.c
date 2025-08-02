@@ -117,11 +117,11 @@ static void draw_frame(const animation_t *ani, uint8_t x, uint8_t y, uint32_t fr
     }
 }
 
-static inline int calc_frame(int fps, int frame_num, uint32_t elapsed)
+static inline int calc_frame(int fps, uint32_t elapsed)
 {
     uint32_t frame_time_us = 1000000 / fps;
     uint32_t frame = elapsed / frame_time_us;
-    return frame >= frame_num ? - 1 : frame;
+    return frame;
 }
 
 unsigned int marker_num()
@@ -146,10 +146,15 @@ bool marker_is_end(int marker, marker_mode_t mode, uint32_t elapsed)
         return true;
     }
 
-    const marker_res_t *res = &marker_res[marker];
+    const marker_res_t *res = &marker_lib[marker];
 
+    int frame_num = res->modes[mode].frame_num;
+    if (mode == MARKER_APPROACH) {
+        frame_num += res->modes[MARKER_MISS].frame_num;
+    }
     uint32_t frame_time_us = 1000000 / res->fps;
-    return elapsed > res->modes[mode].frame_num * frame_time_us;
+
+    return elapsed > frame_num * frame_time_us;
 }
 
 void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
@@ -158,9 +163,23 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
         return;
     }
 
-    const marker_res_t *res = &marker_res[marker];
+    const marker_res_t *res = &marker_lib[marker];
     const animation_t *ani = &res->modes[mode];
-    int frame = calc_frame(res->fps, ani->frame_num, elapsed);
+
+    int frame = calc_frame(res->fps, elapsed);
+
+    int frame_num = ani->frame_num;
+    if (mode == MARKER_APPROACH) {
+        frame_num += res->modes[MARKER_MISS].frame_num;
+        if (frame >= res->modes[MARKER_APPROACH].frame_num) {
+            frame -= res->modes[MARKER_APPROACH].frame_num;
+            ani = &res->modes[MARKER_MISS];
+        }
+    }
+
+    if (frame >= ani->frame_num) {
+        frame = ani->frame_num - 1;
+    }
 
     draw_frame(ani, x, y, frame);
 }

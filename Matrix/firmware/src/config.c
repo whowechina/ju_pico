@@ -14,8 +14,23 @@
 matrix_cfg_t *matrix_cfg;
 
 static matrix_cfg_t default_cfg = {
-    .light = {
+    .panel = {
+        .fm6126 = true,
+        .rgb_order = 0,
         .level = 0x80,
+    },
+    .game = {
+        .marker = 21,
+        .start_delay_ms = 10,
+        .color = {
+            .background = 0x101010,
+            .combo = 0x606000,
+            .score = 0xc0c020,
+        },
+        .font = {
+            .combo = 0,
+            .score = 1,
+        }
     },
 };
 

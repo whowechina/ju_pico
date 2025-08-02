@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="shift-jis"?>
+<jubeathax>
+
+  <!-- Classic patches -->
+    <disable_matching __type="bool">0</disable_matching>
+    <freeze_menu_timer __type="bool">0</freeze_menu_timer>
+    <freeze_result_timer __type="bool">0</freeze_result_timer>
+    <skip_tutorial __type="bool">0</skip_tutorial>
+
+  <!-- IO hooks -->
+    <!-- Use an external device for IO (requires a compatible io_<device>.dll,
+         see http://github.com/CrazyRedMachine/jubeathax for more info) -->
+    <external_io __type="bool">1</external_io>
+
+</jubeathax>

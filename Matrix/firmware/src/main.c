@@ -30,7 +30,7 @@
 #include "config.h"
 #include "cli.h"
 #include "commands.h"
-#include "hid.h"
+#include "ubthax.h"
 #include "matrix.h"
 
 static mutex_t core1_io_lock;
@@ -58,6 +58,23 @@ static void runtime_ctrl()
     }
 }
 
+struct __attribute__((packed)) {
+    uint8_t buttons;
+} hid_report = {0};
+
+static void report_usb_hid()
+{
+    if (tud_hid_ready()) {
+        hid_report.buttons = button_read() & 0xff;
+        tud_hid_n_report(0, REPORT_ID_JOYSTICK, &hid_report, sizeof(hid_report));
+    }
+}
+
+void hid_update()
+{
+    report_usb_hid();
+}
+
 static void core0_loop()
 {
     uint64_t next_frame = time_us_64();
@@ -72,6 +89,8 @@ static void core0_loop()
         hid_update();
 
         runtime_ctrl();
+        ubthax_update();
+
         sleep_until(next_frame);
         next_frame += 1001;
     }
@@ -121,6 +140,8 @@ void init()
     button_init();
 
     cli_fps_label(2, "LED");
+
+    ubthax_init();
     matrix_init();
 
     cli_init("ju_matrix>", "\n   << Ju Matrix >>\n"
@@ -155,5 +176,8 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
                            hid_report_type_t report_type, uint8_t const *buffer,
                            uint16_t bufsize)
 {
-    hid_proc(buffer, bufsize);
+    if ((report_type == HID_REPORT_TYPE_FEATURE) &&
+        (report_id == REPORT_ID_JUBEATHAX)) {
+        ubthax_proc(buffer, bufsize);
+    }
 }
