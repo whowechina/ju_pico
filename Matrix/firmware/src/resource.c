@@ -54,6 +54,9 @@
 #include "res/digit_font_noteworthy_16x32_4bit.h"
 #include "res/digit_font_papyrus_15x32_4bit.h"
 #include "res/digit_font_sana_17x32_4bit.h"
+#include "res/digit_font_dejavuserif_16x20_4bit.h"
+#include "res/digit_font_dejavusansmono_16x20_4bit.h"
+#include "res/digit_font_dejavusansmono_bold_16x20_4bit.h"
 
 const marker_res_t marker_lib[] = {
     DEF_mk0001_cyber_c8_a8,
@@ -110,6 +113,9 @@ const font_t font_lib[] = {
     DEF_digit_font_noteworthy_16x32_4bit,
     DEF_digit_font_papyrus_15x32_4bit,
     DEF_digit_font_sana_17x32_4bit,
+    DEF_digit_font_dejavuserif_16x20_4bit,
+    DEF_digit_font_dejavusansmono_16x20_4bit,
+    DEF_digit_font_dejavusansmono_bold_16x20_4bit,
 };
 
 const int font_count = count_of(font_lib);

@@ -208,19 +208,21 @@ void rotate_90(int x, int y, int times)
     }
 }
 
-static void run_combo()
+static void run_preview()
 {
-    score_draw_combo();
+    grid_render_preview();
 }
 
-static void run_grid()
+static void run_game()
 {
     grid_update();
+    score_draw_combo();
     grid_render();
 }
 
 static void run_result()
 {
+    score_draw_score();
 }
 
 void matrix_update()
@@ -231,9 +233,10 @@ void matrix_update()
 
     hub75_fill(matrix_cfg->game.color.background);
     ubt_phase_t phase = ubthax_get_phase();
-    if ((phase == UBT_STARTING) || (phase == UBT_INGAME)) {
-        run_combo();
-        run_grid();
+    if (phase == UBT_STARTING) {
+        run_preview();
+    } else if (phase == UBT_INGAME) {
+        run_game();
     } else if (phase == UBT_RESULT) {
         run_result();
     } else {

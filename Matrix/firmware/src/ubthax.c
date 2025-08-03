@@ -70,14 +70,18 @@ typedef struct __attribute__((packed)) {
 
 static ubt_phase_t current_phase = UBT_INGAME;
 static queue_t ubthax_event_queue;
-static bool queue_initialized = false;
+
+static void marker_finish_cb(int col, int row, marker_mode_t mode)
+{
+    if (mode == MARKER_MISS) {
+        score_set_combo(0);
+    }
+}
 
 void ubthax_init()
 {
-    if (!queue_initialized) {
-        queue_init(&ubthax_event_queue, sizeof(ubthax_data_t), 32);
-        queue_initialized = true;
-    }
+    queue_init(&ubthax_event_queue, sizeof(ubthax_data_t), 32);
+    grid_listen(marker_finish_cb);
 }
 
 ubt_phase_t ubthax_get_phase()
@@ -85,17 +89,21 @@ ubt_phase_t ubthax_get_phase()
     return current_phase;
 }
 
+static uint64_t last_io_time = 0;
+
 void ubthax_proc(const uint8_t *buf, uint8_t len)
 {
+    if (len < sizeof(ubthax_data_t)) {
+        return;
+    }
+
+    last_io_time = time_us_64();
+
     ubthax_data_t *data = (ubthax_data_t *)buf;
     if (data->state == INACTIVE) {
         return;
     }
    
-    if (!queue_initialized) {
-        ubthax_init();
-    }
-    
     if (!queue_try_add(&ubthax_event_queue, data)) {
         printf("Event queue full, dropping event\n");
     }
@@ -127,8 +135,10 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case FULL_COMBO_ANIM:
         case EXCELLENT_ANIM:
             current_phase = UBT_RESULT;
+            grid_preview_reset();
             break;
         case LEAVE_RESULT_SCREEN:
+            grid_preview_reset();
             current_phase = UBT_IDLE;
             break;
     }
@@ -136,6 +146,9 @@ static void process_ubthax_event(const ubthax_data_t *data)
     int col = data->note % 4;
     int row = data->note / 4;
     switch (data->state) {
+        case PREVIEW:
+            grid_preview(col, row);
+            break;
         case APPROACH:
             grid_start(col, row, false);
             return;
@@ -144,19 +157,19 @@ static void process_ubthax_event(const ubthax_data_t *data)
             break;
         case PRESSED_GOOD:
             grid_judge(col, row, MARKER_GOOD);
-            //score_set_score(data->score.score);
+            score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            break;
+            return;
         case PRESSED_GREAT:
             grid_judge(col, row, MARKER_GREAT);
-            //score_set_score(data->score.score);
+            score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            break;
+            return;
         case PRESSED_PERFECT:
             grid_judge(col, row, MARKER_PERFECT);
-            //score_set_score(data->score.score);
+            score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            break;
+            return;
         default:
             return;
     }
@@ -166,14 +179,18 @@ static void process_ubthax_event(const ubthax_data_t *data)
 
 void ubthax_update()
 {
-    if (!queue_initialized) {
-        return;
+    if (time_us_64() > last_io_time + 10000000) {
+        current_phase = UBT_IDLE;
+        grid_preview_reset();
     }
-    
+
     ubthax_data_t event;
     int processed = 0;
-    while ((processed < 16) && queue_try_remove(&ubthax_event_queue, &event)) {
+    while ((processed < 8) && queue_try_remove(&ubthax_event_queue, &event)) {
         process_ubthax_event(&event);
         processed++;
+    }
+    if (processed >= 5) {
+        printf("Processed %d events\n", processed);
     }
 }

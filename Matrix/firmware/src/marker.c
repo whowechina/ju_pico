@@ -186,11 +186,9 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
 
 void marker_clear(int x, int y, uint32_t color)
 {
-    int col = x * 17;
-    int row = y * 17;
     for (int i = 0; i < 13; i++) {
         for (int j = 0; j < 13; j++) {
-            hub75_pixel(col + i, row + j, color);
+            hub75_pixel(x + i, y + j, color);
         }
     }
 }

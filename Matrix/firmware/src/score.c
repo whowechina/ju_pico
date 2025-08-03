@@ -14,6 +14,10 @@ static struct {
 
 void score_draw_combo()
 {
+    if (score_ctx.combo < 5) {
+        return;
+    }
+
     const font_t *font = &font_lib[0];
     char str[24];
     snprintf(str, sizeof(str), "%lu", score_ctx.combo);
@@ -23,7 +27,7 @@ void score_draw_combo()
 
 void score_draw_score()
 {
-    const font_t *font = &font_lib[0];
+    const font_t *font = &font_lib[5];
     char str[24];
     snprintf(str, sizeof(str), "%lu", score_ctx.score);
 
