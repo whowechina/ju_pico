@@ -259,8 +259,14 @@ def generate_font_for_single_font(font_path, font_name, height, max_width, bit_d
     if calculated_width > max_width:
         return False, f"Width {calculated_width} > max {max_width}"
     
-    # Clean font name for filename
-    clean_font_name = "".join(c for c in font_name if c.isalnum() or c in ('-', '_')).lower()
+    # Clean font name for filename - replace hyphens with underscores for valid C identifiers
+    clean_font_name = "".join(c if c.isalnum() or c == '_' else '_' for c in font_name).lower()
+    # Remove consecutive underscores
+    while '__' in clean_font_name:
+        clean_font_name = clean_font_name.replace('__', '_')
+    # Remove leading/trailing underscores
+    clean_font_name = clean_font_name.strip('_')
+    
     output_file = os.path.join(output_dir, f"digit_font_{clean_font_name}_{calculated_width}x{height}_{bit_depth}bit.h")
     
     # Load font with initial size
@@ -291,7 +297,7 @@ def generate_font_for_single_font(font_path, font_name, height, max_width, bit_d
         total_bytes = len(all_digit_data)
         
         # Generate header file
-        header_guard = os.path.basename(output_file).upper().replace('.', '_')
+        header_guard = os.path.basename(output_file).upper().replace('.', '_').replace('-', '_')
         var_name = f"digit_font_{clean_font_name}_{calculated_width}x{height}_{bit_depth}bit"
         macro_name = f"DEF_{var_name}"
         
@@ -423,7 +429,7 @@ def main():
     parser.add_argument('output_dir', help='Output directory for generated fonts')
     parser.add_argument('--bit-depths', nargs='+', type=int, choices=[2, 4], default=[2, 4],
                        help='Bit depths to generate (default: 2 4)')
-    
+   
     args = parser.parse_args()
     
     # Validate arguments
