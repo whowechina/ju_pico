@@ -14,7 +14,8 @@ struct __attribute__((packed)) {
     uint16_t buttons;
     uint8_t aux;
     uint8_t axis[2];
-} hid_report = {0};
+} hid_report, hid_reported;
+uint64_t next_report_time;
 
 /* map reflects to a 4x4 button matrix status */
 static uint16_t do_rotate_90cw(uint16_t map)
@@ -53,7 +54,16 @@ static void report_usb_hid()
         uint8_t rotate = ju_cfg->hid.rotate % 4;
         hid_report.axis[0] = dirs[rotate].x;
         hid_report.axis[1] = dirs[rotate].y;
-        tud_hid_n_report(0, REPORT_ID_JOYSTICK, &hid_report, sizeof(hid_report));
+
+        uint64_t now = time_us_64();
+        if ((memcmp(&hid_reported, &hid_report, sizeof(hid_report)) != 0) ||
+            (now > next_report_time)) {
+            if (tud_hid_n_report(0, REPORT_ID_JOYSTICK, &hid_report, sizeof(hid_report))) {
+                hid_reported = hid_report;
+                next_report_time = now + 10000;
+            }
+        }
+
     }
 }
 
