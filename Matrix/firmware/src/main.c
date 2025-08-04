@@ -144,8 +144,14 @@ void init()
     ubthax_init();
     matrix_init();
 
-    cli_init("ju_matrix>", "\n   << Ju Matrix >>\n"
-                            " https://github.com/whowechina\n\n");
+    cli_init("ju_matrix>",
+#ifdef BOARD_JU_MATRIX
+             "\n   << Ju Matrix >>\n"
+#else
+             "\n   << Ju Matrix Plus >>\n"
+#endif
+            " https://github.com/whowechina\n\n");
+
     commands_init();
 
     matrix_runtime.key_stuck = button_is_stuck();

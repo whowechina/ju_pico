@@ -208,8 +208,21 @@ void rotate_90(int x, int y, int times)
     }
 }
 
+static void run_idle()
+{
+    for (int x = 0; x < PANEL_WIDTH; x++) {
+        for (int y = 0; y < PANEL_HEIGHT; y++) {
+            hub75_pixel(x, y, hub75_rgb(x, y, x+y));
+        }
+    }
+    grid_update();
+    grid_render();
+}
+
 static void run_preview()
 {
+    score_set_combo(0);
+    score_set_score(0);
     grid_render_preview();
 }
 
@@ -240,6 +253,7 @@ void matrix_update()
     } else if (phase == UBT_RESULT) {
         run_result();
     } else {
+        run_idle();
     }
     hub75_update();
 }

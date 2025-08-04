@@ -413,11 +413,12 @@ def process_image_v2(input_file, output_file, grid_size=(4, 8), tile_size=(256, 
             'alpha_data': alpha_data,
             'alpha_bits': alpha_bits
         }
-def save_as_c_header(output_dir, name, all_images, alpha_bits, color_depth=4):
+def save_as_c_header(output_dir, name, all_images, alpha_bits, color_depth=4, target_size=(13, 13)):
     """
     Save all image data as a C header file with new animation_t structure
     
     :param color_depth: Color depth (4, 8, or 24)
+    :param target_size: Tuple specifying the target size for each frame (width, height)
     """
     # 添加这一行
     name_clean = name.replace('-', '_')
@@ -486,12 +487,13 @@ def save_as_c_header(output_dir, name, all_images, alpha_bits, color_depth=4):
                     alpha_ptr = "NULL"
                 
                 # 新的结构格式: color_depth, alpha_depth, image_size, frame_num, palette, alpha, img_union
+                image_size = target_size[0]  # 使用target_size参数
                 if color_depth == 24:
-                    f.write(f"        {{ {color_depth}, 0, 13, {frame_num}, {palette_ptr}, {alpha_ptr}, .img32 = {img_ptr} }}")
+                    f.write(f"        {{ {color_depth}, 0, {image_size}, {frame_num}, {palette_ptr}, {alpha_ptr}, .img32 = {img_ptr} }}")
                 elif color_depth == 5:
-                    f.write(f"        {{ {color_depth}, 3, 13, {frame_num}, {palette_ptr}, {alpha_ptr}, .img8 = {img_ptr} }}")
+                    f.write(f"        {{ {color_depth}, 3, {image_size}, {frame_num}, {palette_ptr}, {alpha_ptr}, .img8 = {img_ptr} }}")
                 else:
-                    f.write(f"        {{ {color_depth}, {alpha_bits}, 13, {frame_num}, {palette_ptr}, {alpha_ptr}, .img8 = {img_ptr} }}")
+                    f.write(f"        {{ {color_depth}, {alpha_bits}, {image_size}, {frame_num}, {palette_ptr}, {alpha_ptr}, .img8 = {img_ptr} }}")
             else:
                 f.write(f"        {{ 0, 0, 0, 0, NULL, NULL, .img8 = NULL }}")
 
@@ -619,49 +621,61 @@ def process_all_subdirectories(input_dir, output_dir, grid_size=(4, 8), tile_siz
             # Generate C header file if any images were processed
             if all_images:
                 print(f"  Using {color_depth}-bit color depth with {alpha_bits}-bit alpha")
-                save_as_c_header(output_dir, subdir, all_images, alpha_bits, color_depth)
+                save_as_c_header(output_dir, subdir, all_images, alpha_bits, color_depth, target_size)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3 or len(sys.argv) > 7:
-        print("Usage: python3 trans_marker.py <input_directory> <output_directory> [alpha_bits] [color_depth] [png]")
+    if len(sys.argv) < 3 or len(sys.argv) > 8:
+        print("Usage: python3 trans_marker.py <input_directory> <output_directory> [frame_size] [alpha_bits] [color_depth] [png]")
+        print("  frame_size: Frame size in pixels (default: 13)")
         print("  color_depth: 4, 5, 8, or 24 (default: 4)")
         print("  alpha_bits: 2, 4, or 8 (default: 2)")
         print("  Add 'png' at the end to save PNG files (default: only generate .h files)")
         print("Examples:")
         print("  python3 trans_marker.py input output")
-        print("  python3 trans_marker.py input output 8")
-        print("  python3 trans_marker.py input output 24 2")
-        print("  python3 trans_marker.py input output 24 8 png")
+        print("  python3 trans_marker.py input output 16")
+        print("  python3 trans_marker.py input output 13 8")
+        print("  python3 trans_marker.py input output 13 24 2")
+        print("  python3 trans_marker.py input output 16 24 8 png")
         sys.exit(1)
 
     input_dir = sys.argv[1]  # Input directory specified via command-line argument
     output_dir = sys.argv[2]  # Output directory specified via command-line argument
     
     # Parse parameters
+    frame_size = 13  # default
     alpha_bits = 2  # default
     color_depth = 4  # default
     save_png = False
     
-    # Parse remaining arguments
-    parsed_color_depth = False
-    for arg in sys.argv[3:]:
+    # Parse remaining arguments in order: frame_size, alpha_bits, color_depth, png
+    remaining_args = sys.argv[3:]
+    arg_index = 0
+    
+    for arg in remaining_args:
         if arg.lower() == 'png':
             save_png = True
-        elif arg in ['4', '5', '8', '24'] and not parsed_color_depth:  # color_depth (first occurrence)
-            color_depth = int(arg)
-            parsed_color_depth = True
-        elif arg in ['2', '4', '8']:  # alpha_bits (second occurrence)
+        elif arg.isdigit() and arg_index == 0:  # frame_size (first numeric argument)
+            frame_size = int(arg)
+            arg_index += 1
+        elif arg in ['2', '4', '8'] and arg_index == 1:  # alpha_bits (second argument)
             alpha_bits = int(arg)
+            arg_index += 1
+        elif arg in ['4', '5', '8', '24'] and arg_index == 2:  # color_depth (third argument)
+            color_depth = int(arg)
+            arg_index += 1
         else:
-            print(f"Error: Invalid argument '{arg}'.")
-            print("Color depth must be 4, 5, 8, or 24. Alpha bits must be 2, 4, or 8.")
+            print(f"Error: Invalid argument '{arg}' or arguments in wrong order.")
+            print("Arguments order: [frame_size] [alpha_bits] [color_depth] [png]")
+            print("Frame size must be a positive integer. Alpha bits must be 2, 4, or 8. Color depth must be 4, 5, 8, or 24.")
             sys.exit(1)
 
+    target_size = (frame_size, frame_size)  # Create target_size tuple
+    
     if not os.path.isdir(input_dir):
         print(f"Error: {input_dir} is not a valid directory.")
         sys.exit(1)
 
-    print(f"Processing with {alpha_bits}-bit alpha channel and {color_depth}-bit color depth")
+    print(f"Processing with {frame_size}x{frame_size} frame size, {alpha_bits}-bit alpha channel and {color_depth}-bit color depth")
     print(f"Save PNG files: {'Yes' if save_png else 'No (only .h files)'}")
     
-    process_all_subdirectories(input_dir, output_dir, alpha_bits=alpha_bits, color_depth=color_depth, save_png=save_png)
+    process_all_subdirectories(input_dir, output_dir, target_size=target_size, alpha_bits=alpha_bits, color_depth=color_depth, save_png=save_png)

@@ -3,12 +3,6 @@
  * WHowe <github.com/whowechina>
  */
 
-#if defined BOARD_MATRIX_PICO
-
-//#define RGB_PIN 17
-//#define RGB_ORDER GRB // or RGB
-
-/* 4 buttons, Test, Service, Coin, Aux */
 #define BUTTON_DEF { 27 }
 
 #define HUB75_DATA_BASE 0
@@ -18,6 +12,15 @@
 #define HUB75_STROBE_PIN 12
 #define HUB75_OEN_PIN 13
 
-#else
+#if defined BOARD_JU_MATRIX
+#define PANEL_WIDTH 64
+#define PANEL_HEIGHT 64
+#define GRID_SIZE 13
+#define GRID_GAP 4
 
+#elif defined BOARD_JU_MATRIX_PLUS
+#define PANEL_WIDTH 128
+#define PANEL_HEIGHT 128
+#define GRID_SIZE 28
+#define GRID_GAP 6
 #endif

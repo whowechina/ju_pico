@@ -30,5 +30,5 @@ function(make_firmware board board_def)
                        ARGS -E copy ${board}.uf2 ${CMAKE_CURRENT_LIST_DIR}/..)
 endfunction()
 
-make_firmware(matrix_pico BOARD_MATRIX_PICO)
-
+make_firmware(ju_matrix BOARD_JU_MATRIX)
+make_firmware(ju_matrix_plus BOARD_JU_MATRIX_PLUS)

@@ -68,7 +68,7 @@ typedef struct __attribute__((packed)) {
     };
 } ubthax_data_t;
 
-static ubt_phase_t current_phase = UBT_INGAME;
+static ubt_phase_t current_phase = UBT_IDLE;
 static queue_t ubthax_event_queue;
 
 static void marker_finish_cb(int col, int row, marker_mode_t mode)

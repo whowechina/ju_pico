@@ -7,6 +7,8 @@
 #include "hub75.h"
 #include "grid.h"
 
+#define GRID_PITCH (GRID_SIZE + GRID_GAP)
+
 typedef struct {
     bool active;
     uint8_t marker;
@@ -158,7 +160,7 @@ void grid_render()
             grid_cell_t *cell = &grid_ctx.grid[col][row];
             uint64_t elapsed = update_time - cell->start;
             if (cell->active) {
-                marker_draw(col * 17, row * 17, cell->marker, cell->mode, elapsed);
+                marker_draw(col * GRID_PITCH, row * GRID_PITCH, cell->marker, cell->mode, elapsed);
             }
         }
     }
@@ -169,8 +171,8 @@ void grid_render_preview()
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             if (grid_ctx.preview & (1 << (row * 4 + col))) {
-                int x = col * 17;
-                int y = row * 17;
+                int x = col * GRID_PITCH;
+                int y = row * GRID_PITCH;
                 uint8_t hue = (time_us_32() >> 13);
                 marker_clear(x, y, hub75_hsv2rgb(hue, 255, 100));
             }

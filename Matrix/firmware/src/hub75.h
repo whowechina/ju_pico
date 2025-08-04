@@ -9,10 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
-#define PANEL_WIDTH 64
-#define PANEL_HEIGHT 64
-#define PANEL_BIT_DEPTH 10
+#include "board_defs.h"
 
 const static uint16_t GAMMA_10BIT[256] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -33,7 +30,7 @@ const static uint16_t GAMMA_10BIT[256] = {
     895, 903, 912, 920, 928, 937, 945, 954, 962, 971, 979, 988, 997, 1005, 1014, 1023
 };
 
-extern uint32_t canvas[64][64];
+extern uint32_t canvas[PANEL_WIDTH][PANEL_HEIGHT];
 
 void hub75_init(bool fm6126, bool inverted_stb);
 void hub75_update();

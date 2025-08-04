@@ -24,10 +24,14 @@
 #include "hub75.h"
 #include "config.h"
 
+#define PANEL_BIT_DEPTH 10
+
 #define HUB75_DATA_PIN(n) (HUB75_DATA_BASE + (n))
 
 uint32_t canvas[PANEL_HEIGHT][PANEL_WIDTH] = {0};
-uint32_t back_buffer[PANEL_HEIGHT / 2][PANEL_WIDTH * 2] = {0};
+
+#define BACK_BUF_ROW_N (1 << HUB75_ROWSEL_N_PINS)
+uint32_t back_buffer[BACK_BUF_ROW_N][PANEL_WIDTH * PANEL_HEIGHT / BACK_BUF_ROW_N];
 
 struct {
     PIO pio;
@@ -163,7 +167,8 @@ static void start_next_scan()
     }
 
     hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
-    dma_channel_set_trans_count(ctx.dma_channel, PANEL_WIDTH * 2, false);
+    int trans_count = PANEL_WIDTH * PANEL_HEIGHT / (1 << HUB75_ROWSEL_N_PINS);
+    dma_channel_set_trans_count(ctx.dma_channel, trans_count, false);
     dma_channel_set_read_addr(ctx.dma_channel, &back_buffer[ctx.row], true);
 }
 
@@ -260,9 +265,7 @@ void hub75_start(hub75_dma_complete_cb cb)
     ctx.row = 0;
     ctx.bit = 0;
 
-    hub75_data_rgb888_set_shift(ctx.pio, ctx.sm_data, ctx.data_prog, ctx.bit);
-    dma_channel_set_trans_count(ctx.dma_channel, PANEL_WIDTH * 2, false);
-    dma_channel_set_read_addr(ctx.dma_channel, back_buffer, true);
+    start_next_scan();
 }
 
 void hub75_pause()
@@ -285,25 +288,35 @@ bool hub75_is_paused()
     return ctx.paused;
 }
 
+static inline uint32_t rgb_fix(uint32_t color)
+{
+    if (matrix_cfg->panel.rgb_order == 1) {
+        uint32_t a = color >> 20;
+        uint32_t bc = color & 0xfffff;
+        return (bc << 10) | a;
+    } else {
+        return color;
+    }
+}
+
 void hub75_update()
 {
     const uint row_block = (1 << HUB75_ROWSEL_N_PINS);
     for (int row = 0; row < row_block; ++row) {
         for (int x = 0; x < PANEL_WIDTH; ++x) {
-            uint32_t a = canvas[row][x];
-            uint32_t b = canvas[row + row_block][x];
-            if (matrix_cfg->panel.rgb_order == 1) {
-                uint32_t a_h10b = (a >> 20);
-                a <<= 10;
-                a &= 0x3fffffff;
-                a |= a_h10b;
-                uint32_t b_h10b = (b >> 20);
-                b <<= 10;
-                b &= 0x3fffffff;
-                b |= b_h10b;
-            }
+            uint32_t a = rgb_fix(canvas[row][x]);
+            uint32_t b = rgb_fix(canvas[row + row_block][x]);
+#if PANEL_WIDTH == 64
             back_buffer[row][x * 2] = a;
             back_buffer[row][x * 2 + 1] = b;
+#elif PANEL_WIDTH == 128
+            uint32_t c = rgb_fix(canvas[row + row_block * 2][x]);
+            uint32_t d = rgb_fix(canvas[row + row_block * 3][x]);
+            back_buffer[row][x * 2] = a;
+            back_buffer[row][x * 2 + 1] = b;
+            back_buffer[row][(PANEL_WIDTH * 2) + x * 2] = c;
+            back_buffer[row][(PANEL_WIDTH * 2) + x * 2 + 1] = d;
+#endif
         }
     }
 }
