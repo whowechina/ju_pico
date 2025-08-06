@@ -129,6 +129,8 @@ static void set_phase(ubt_phase_t phase)
             score_set_combo(0);
             break;
     }
+
+    current_phase = phase;
 }
 
 static void process_ubthax_event(const ubthax_data_t *data)
@@ -176,9 +178,15 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case APPROACH:
             grid_start(col, row, false);
             return;
+        case MISS:
+        case GOOD:
+        case GREAT:
+        case PERFECT:
+            return;
+        case MISSED:
         case PRESSED_MISS:
             grid_judge(col, row, MARKER_MISS);
-            break;
+            return;
         case PRESSED_GOOD:
             grid_judge(col, row, MARKER_GOOD);
             score_set_score(data->score.score);
