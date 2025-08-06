@@ -102,12 +102,12 @@ static void score_draw_rank(uint8_t alpha)
         SPACING("\xfd\x00") RGB("\xff\x80\x80") "E" RGB("\xa0\xa0\xff") "X" RGB("\x80\xff\x80") "C",
         SPACING("\xfd\x00") RGB("\xd0\xd0\x00") "S" RGB("\x00\xd0\xd0") "S" RGB("\xd0\x00\xd0") "S",
         SPACING("\xff\x00") RGB("\x00\xc0\xc0") "SS",
-        RGB("\x00\xc0\xc0") "S",
+        RGB("\xc0\xc0\x00") "S",
         RGB("\x00\xc0\xc0") "A",
-        RGB("\x00\xc0\xc0") "B",
+        RGB("\xc0\xa0\x00") "B",
         RGB("\x00\xc0\xc0") "C",
-        RGB("\xc0\x10\x10") "D",
-        RGB("\xc0\x10\x10") "E",
+        RGB("\xa0\x80\x80") "D",
+        RGB("\xa0\x40\x40") "E",
     };
 
     const char *rank_str = ranks[rank];

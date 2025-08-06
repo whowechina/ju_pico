@@ -31,33 +31,13 @@ void matrix_init()
 
 static void run_idle()
 {
-    for (int x = 0; x < PANEL_WIDTH; x++) {
-        for (int y = 0; y < PANEL_HEIGHT; y++) {
-            hub75_pixel(x, y, hub75_argb(0xff, x, y, x+y));
+    if (rand() % 10000 < 10) {
+        int col = rand() % 4;
+        int row = rand() % 4;
+        if (!grid_is_active(col, row)) {
+            grid_test(col, row, rand() % marker_num());
         }
     }
-
-    const int scores[] = {
-        400000, 500000, 700000, 800000, 850000,
-        900000, 950000, 980000, 1000000
-    };
-
-    uint32_t index = time_us_32() / 5000000 % 9;
-    static int old_index = -1;
-    if (index != old_index) {
-        old_index = index;
-        score_set_final_score(scores[index]);
-        switch (index % 3) {
-            case 0:
-                score_set_excellent();
-                break;
-            case 1:
-                score_set_fullcombo();
-                break;
-        }
-    }
-
-    score_draw_final();
 
     grid_update();
     grid_render();
@@ -65,8 +45,6 @@ static void run_idle()
 
 static void run_preview()
 {
-    score_set_combo(0);
-    score_set_score(0);
     grid_render_preview();
 }
 

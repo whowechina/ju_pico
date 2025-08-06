@@ -31,7 +31,7 @@ static inline int get_alpha(const animation_t *ani, uint8_t x, uint8_t y, int fr
     return extract_alpha(ani->alpha_depth, ani->alpha[byte], section);
 }
 
-static void draw_pal8(const animation_t *ani, uint8_t x, uint8_t y, int frame) 
+static void draw_pal8(const animation_t *ani, int x, int y, int frame) 
 {
     int pixels = ani->image_size * ani->image_size;
     const uint8_t *img = ani->img8 + frame * pixels;
@@ -48,7 +48,7 @@ static void draw_pal8(const animation_t *ani, uint8_t x, uint8_t y, int frame)
 }
 
 /* 5 bit pal, 3 bit alpha encoded in pixels */
-static void draw_pal5(const animation_t *ani, uint8_t x, uint8_t y, int frame) 
+static void draw_pal5(const animation_t *ani, int x, int y, int frame) 
 {
     int pixels = ani->image_size * ani->image_size;
     const uint8_t *img = ani->img8 + frame * pixels;
@@ -64,7 +64,7 @@ static void draw_pal5(const animation_t *ani, uint8_t x, uint8_t y, int frame)
     }
 }
 
-static void draw_pal4(const animation_t *ani, uint8_t x, uint8_t y, int frame)
+static void draw_pal4(const animation_t *ani, int x, int y, int frame)
 {
     int img_size = ani->image_size;
     int pixels_per_frame = img_size * img_size;
@@ -89,7 +89,7 @@ static void draw_pal4(const animation_t *ani, uint8_t x, uint8_t y, int frame)
     }
 }
 
-static void draw_24bit(const animation_t *ani, uint8_t x, uint8_t y, int frame)
+static void draw_24bit(const animation_t *ani, int x, int y, int frame)
 {
     const uint32_t *img = ani->img32 + frame * ani->image_size * ani->image_size;
     for (int j = 0; j < ani->image_size; j++) {
@@ -100,7 +100,7 @@ static void draw_24bit(const animation_t *ani, uint8_t x, uint8_t y, int frame)
     }
 }
 
-static void draw_frame(const animation_t *ani, uint8_t x, uint8_t y, uint32_t frame)
+static void draw_frame(const animation_t *ani, int x, int y, uint32_t frame)
 {
     if (!ani) {
         return;

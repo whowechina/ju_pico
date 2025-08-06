@@ -32,3 +32,4 @@ endfunction()
 
 make_firmware(ju_matrix BOARD_JU_MATRIX)
 make_firmware(ju_matrix_plus BOARD_JU_MATRIX_PLUS)
+make_firmware(ju_matrix_plus_crop BOARD_JU_MATRIX_PLUS_CROP)

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 #include "pico/time.h"
 
@@ -6,6 +7,13 @@
 #include "marker.h"
 #include "hub75.h"
 #include "grid.h"
+
+#ifndef GRID_OFFSET_X
+#define GRID_OFFSET_X 0
+#endif
+#ifndef GRID_OFFSET_Y
+#define GRID_OFFSET_Y 0
+#endif
 
 #define GRID_PITCH (GRID_SIZE + GRID_GAP)
 
@@ -100,6 +108,7 @@ void grid_abort(int col, int row)
         return;
     }
     grid_ctx.grid[col][row].active = false;
+    grid_ctx.grid[col][row].schedule = 0;
 }
 
 bool grid_is_active(int col, int row)
@@ -107,7 +116,7 @@ bool grid_is_active(int col, int row)
     if (out_of_bound(col, row)) {
         return false;
     }
-    return grid_ctx.grid[col][row].active;
+    return grid_ctx.grid[col][row].active || (grid_ctx.grid[col][row].schedule > 0);
 }
 
 int grid_last_marker(int col, int row)
@@ -128,6 +137,34 @@ int grid_last_mode(int col, int row)
 
 static uint64_t update_time;
 
+static void update_cell(grid_cell_t *cell, int col, int row)
+{
+    if ((cell->schedule > 0) && (update_time >= cell->schedule)) {
+        cell->schedule = 0;
+        cell->start = update_time;
+        cell->active = true;
+        return;
+    }
+
+    if (!cell->active) {
+        return;
+    }
+
+    uint64_t elapsed = update_time - cell->start;
+    if (!marker_is_end(cell->marker, cell->mode, elapsed)) {
+        return;
+    }
+
+    if ((col == 0) && (row == 0)) {
+        printf("%d\n", __LINE__);
+    }
+
+    cell->active = false;
+    if (grid_ctx.on_finish) {
+        grid_ctx.on_finish(col, row, cell->mode);
+    }
+}
+
 void grid_update()
 {
     update_time = time_us_64();
@@ -135,25 +172,7 @@ void grid_update()
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             grid_cell_t *cell = &grid_ctx.grid[col][row];
-            if ((cell->schedule > 0) && (update_time >= cell->schedule)) {
-                cell->schedule = 0;
-                cell->start = update_time;
-                cell->active = true;
-                continue;
-            }
-
-            if (!cell->active) {
-                continue;
-            }
-
-            uint64_t elapsed = update_time - cell->start;
-            if (!marker_is_end(cell->marker, cell->mode, elapsed)) {
-                continue;
-            }
-            cell->active = false;
-            if (grid_ctx.on_finish) {
-                grid_ctx.on_finish(col, row, cell->mode);
-            }
+            update_cell(cell, col, row);
         }
     }
 }
@@ -165,7 +184,9 @@ void grid_render()
             grid_cell_t *cell = &grid_ctx.grid[col][row];
             uint64_t elapsed = update_time - cell->start;
             if (cell->active) {
-                marker_draw(col * GRID_PITCH, row * GRID_PITCH, cell->marker, cell->mode, elapsed);
+                int x = col * GRID_PITCH + GRID_OFFSET_X;
+                int y = row * GRID_PITCH + GRID_OFFSET_Y;
+                marker_draw(x, y, cell->marker, cell->mode, elapsed);
             }
         }
     }
@@ -176,8 +197,8 @@ void grid_render_preview()
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             if (grid_ctx.preview & (1 << (row * 4 + col))) {
-                int x = col * GRID_PITCH;
-                int y = row * GRID_PITCH;
+                int x = col * GRID_PITCH + GRID_OFFSET_X;
+                int y = row * GRID_PITCH + GRID_OFFSET_Y;
                 uint8_t hue = (time_us_32() >> 13);
                 marker_clear(x, y, hub75_hsv2rgb(hue, 255, 100));
             }
