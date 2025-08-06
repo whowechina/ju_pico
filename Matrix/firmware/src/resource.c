@@ -276,7 +276,9 @@ const marker_res_t marker_lib[] = {
 #endif
 };
 
+static_assert(count_of(marker_lib) > 0);
 const unsigned int marker_count = count_of(marker_lib);
+
 
 const lv_font_t font_lib[] = {
 #ifdef BOARD_JU_MATRIX
@@ -284,7 +286,7 @@ const lv_font_t font_lib[] = {
     lv_lts16,
     lv_lts14,
     lv_upheaval,
-#elif defined BOARD_JU_MATRIX_PLUS
+#elif defined BOARD_JU_MATRIX_PLUS || defined BOARD_JU_MATRIX_PLUS_CROP
     donegal1_64,
     lv_lts20,
     lv_lts20,
@@ -292,4 +294,6 @@ const lv_font_t font_lib[] = {
 #endif
 };
 
+static_assert(count_of(font_lib) > 0);
 const unsigned int font_count = count_of(font_lib);
+

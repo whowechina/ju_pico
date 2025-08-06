@@ -21,14 +21,15 @@
 enum cell_state_e {
 	/* PENDING values: coincide with internal judgement states for convenience (meant for animating cells while waiting for press) */
 	APPROACH                = 0,                 /* cell is active but not in timing window yet */
-	MISSED                  = 1,                 /* button wasn't pressed on time */
-	MISS                    = 2,                 /* button would be very early or very late (miss "good" windows, [-155 ; 85] ) */
+	MISS                    = 1,                 /* button wasn't pressed on time */
+	POOR                    = 2,                 /* button would be very early or very late (miss "good" windows, [-155 ; 85] ) */
 	GOOD                    = 3,                 /* button would be early or late (blue "good" window, [-48 ; 48]) */
 	GREAT                   = 4,                 /* button would be slightly early or late (green "good" window, [-24 ; 24]) */
 	PERFECT                 = 5,                 /* button would be on time! ("perfect" window, [-12 ; 12]) */
 
 	/* "Pressed" values: internal judgement states combined with the PRESSED flag (meant to handle button presses) */
-	PRESSED_MISS            = PRESSED|MISS,      /* button was pressed very early or very late */
+    PRESSED_MISS            = PRESSED|MISS,    /* button was pressed but not on time */
+    PRESSED_POOR            = PRESSED|POOR,      /* button was pressed very early or very late */
 	PRESSED_GOOD            = PRESSED|GOOD,      /* button was pressed early or late (blue "good" window) */
 	PRESSED_GREAT           = PRESSED|GREAT,     /* button was pressed slightly early or late (green "good" window) */
 	PRESSED_PERFECT         = PRESSED|PERFECT,   /* button was pressed on time ("perfect" window) */
@@ -69,6 +70,7 @@ typedef struct __attribute__((packed)) {
 } ubthax_data_t;
 
 static ubt_phase_t current_phase = UBT_IDLE;
+static uint64_t phase_start_time = 0;
 static queue_t ubthax_event_queue;
 
 static void marker_finish_cb(int col, int row, marker_mode_t mode)
@@ -87,6 +89,11 @@ void ubthax_init()
 ubt_phase_t ubthax_get_phase()
 {
     return current_phase;
+}
+
+int ubthax_get_phase_time_ms()
+{
+    return (time_us_64() - phase_start_time) / 1000;
 }
 
 static uint64_t last_io_time = 0;
@@ -131,6 +138,7 @@ static void set_phase(ubt_phase_t phase)
     }
 
     current_phase = phase;
+    phase_start_time = time_us_64();
 }
 
 static void process_ubthax_event(const ubthax_data_t *data)
@@ -179,13 +187,20 @@ static void process_ubthax_event(const ubthax_data_t *data)
             grid_start(col, row, false);
             return;
         case MISS:
+        case POOR:
         case GOOD:
         case GREAT:
         case PERFECT:
             return;
-        case MISSED:
         case PRESSED_MISS:
             grid_judge(col, row, MARKER_MISS);
+            score_set_score(data->score.score);
+            score_set_combo(data->score.combo);
+            return;           
+        case PRESSED_POOR:
+            grid_judge(col, row, MARKER_POOR);
+            score_set_score(data->score.score);
+            score_set_combo(data->score.combo);
             return;
         case PRESSED_GOOD:
             grid_judge(col, row, MARKER_GOOD);
@@ -199,8 +214,8 @@ static void process_ubthax_event(const ubthax_data_t *data)
             return;
         case PRESSED_PERFECT:
             grid_judge(col, row, MARKER_PERFECT);
-            score_set_score(data->score.score);
             score_set_combo(data->score.combo);
+            score_set_score(data->score.score);
             return;
         case LONG_TRAIL_DRAW_FIRST:
         case LONG_TRAIL_DRAW_CONT:
@@ -209,7 +224,8 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case LONG_NOTE_RELEASE_CONT:
         case LONG_NOTE_MISS_FIRST:
         case LONG_NOTE_MISS_CONT: 
-            printf("L_%s\n", long_names[data->state - LONG_TRAIL_DRAW_FIRST]);
+            printf("L_%s", long_names[data->state - LONG_TRAIL_DRAW_FIRST]);
+            printf(" %d %d %f\n", col, row, data->ratio);
             return;
         case FINAL_SCORE:
             score_set_final_score(data->score.score);

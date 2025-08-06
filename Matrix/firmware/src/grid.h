@@ -26,7 +26,7 @@ int grid_last_mode(int col, int row);
 
 void grid_update();
 void grid_render();
-void grid_render_preview();
+void grid_render_preview(uint8_t alpha);
 
 typedef void (*grid_marker_finish_cb)(int col, int row, marker_mode_t mode);
 void grid_listen(grid_marker_finish_cb on_finish);

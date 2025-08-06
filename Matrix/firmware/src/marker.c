@@ -186,9 +186,9 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
 
 void marker_clear(int x, int y, uint32_t color)
 {
-    for (int i = 0; i < 13; i++) {
-        for (int j = 0; j < 13; j++) {
-            hub75_pixel(x + i, y + j, color);
+    for (int i = 0; i < marker_lib[0].modes[0].image_size; i++) {
+        for (int j = 0; j < marker_lib[0].modes[0].image_size; j++) {
+            hub75_blend(x + i, y + j, color);
         }
     }
 }

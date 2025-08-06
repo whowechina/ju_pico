@@ -63,8 +63,11 @@ struct {
 
     .row = 0,
     .bit = 0,
+#ifdef BOARD_JU_MATRIX
     .brightness = 18,
-
+#else
+    .brightness = 10,
+#endif
     .clk_polarity = 1,
     .stb_polarity = 1,
     .oe_polarity = 0,

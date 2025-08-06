@@ -155,10 +155,6 @@ static void update_cell(grid_cell_t *cell, int col, int row)
         return;
     }
 
-    if ((col == 0) && (row == 0)) {
-        printf("%d\n", __LINE__);
-    }
-
     cell->active = false;
     if (grid_ctx.on_finish) {
         grid_ctx.on_finish(col, row, cell->mode);
@@ -192,15 +188,21 @@ void grid_render()
     }
 }
 
-void grid_render_preview()
+static void draw_preview(int x, int y, uint8_t alpha)
+{
+    uint8_t hue = time_us_32() >> 12;
+    uint32_t color = hub75_hsv2rgb(hue, 220, 200);
+    marker_clear(x, y, hub75_alpha(alpha, color));
+}
+
+void grid_render_preview(uint8_t alpha)
 {
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             if (grid_ctx.preview & (1 << (row * 4 + col))) {
                 int x = col * GRID_PITCH + GRID_OFFSET_X;
                 int y = row * GRID_PITCH + GRID_OFFSET_Y;
-                uint8_t hue = (time_us_32() >> 13);
-                marker_clear(x, y, hub75_hsv2rgb(hue, 255, 100));
+                draw_preview(x, y, alpha);
             }
         }
     }

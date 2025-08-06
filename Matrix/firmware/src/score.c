@@ -22,15 +22,16 @@ const uint32_t ranking_fade_in = 500000;
 
 void score_draw_combo()
 {
-    if (score_ctx.combo < 5) {
+    if ((score_ctx.combo < 5) || (score_ctx.combo > 9999)) {
         return;
     }
 
-    char str[24];
+    char str[10];
     snprintf(str, sizeof(str), "%lu", score_ctx.combo);
     uint32_t color = matrix_cfg->game.color.combo | 0xff000000;
     uint32_t x_pos = PANEL_WIDTH / 2;
     uint32_t y_pos = PANEL_HEIGHT / 4 + 1;
+
     font_spacing(-1, -1);
     font_draw_text(x_pos, y_pos, str, 0, color, ALIGN_CENTER);
 }
@@ -93,7 +94,7 @@ static void score_draw_rank(uint8_t alpha)
 {
     int rank = get_rank(score_ctx.score);
     const char *judge = rank <= 6 ? RGB("\x00\xc0\xc0" "CLEARED") :
-                                    RGB("\xd0\x20\x20" "FAILED");
+                                    RGB("\xc0\x80\x80" "FAILED");
     font_spacing(0, 0);
     font_draw_text(PANEL_WIDTH / 2, PANEL_HEIGHT / 4,
                    judge, 2, alpha << 24, ALIGN_CENTER);
@@ -106,8 +107,8 @@ static void score_draw_rank(uint8_t alpha)
         RGB("\x00\xc0\xc0") "A",
         RGB("\xc0\xa0\x00") "B",
         RGB("\x00\xc0\xc0") "C",
-        RGB("\xa0\x80\x80") "D",
-        RGB("\xa0\x40\x40") "E",
+        RGB("\xc0\x80\x80") "D",
+        RGB("\xc0\x80\x80") "E",
     };
 
     const char *rank_str = ranks[rank];

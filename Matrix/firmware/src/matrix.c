@@ -18,7 +18,7 @@
 
 static void dma_complete(uint16_t row, uint16_t bit)
 {
-    if (row == 0 && bit == 0) {
+    if ((row == 0) && (bit == 0)) {
         cli_fps_count(2);
     }
 }
@@ -31,7 +31,7 @@ void matrix_init()
 
 static void run_idle()
 {
-    if (rand() % 10000 < 10) {
+    if (rand() % 10000 < 20) {
         int col = rand() % 4;
         int row = rand() % 4;
         if (!grid_is_active(col, row)) {
@@ -45,11 +45,17 @@ static void run_idle()
 
 static void run_preview()
 {
-    grid_render_preview();
+    grid_render_preview(0xff);
 }
 
 static void run_game()
 {
+    int elapsed = ubthax_get_phase_time_ms();
+    int fade_time = matrix_cfg->game.start_delay_ms;
+    if ((fade_time > 0) && (elapsed < fade_time)) {
+        int alpha = (fade_time - elapsed) * 255 / fade_time;
+        grid_render_preview(alpha);
+    }
     grid_update();
     score_draw_combo();
     grid_render();
