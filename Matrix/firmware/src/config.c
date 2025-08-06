@@ -20,8 +20,8 @@ static matrix_cfg_t default_cfg = {
         .level = 0x80,
     },
     .game = {
-        .marker = 21,
-        .start_delay_ms = 10,
+        .marker = 0,
+        .start_delay_ms = 290,
         .color = {
             .background = 0x101010,
             .combo = 0x606000,
