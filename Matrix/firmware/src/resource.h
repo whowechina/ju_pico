@@ -2,7 +2,7 @@
 #include "font.h"
 
 extern const marker_res_t marker_lib[];
-extern const int marker_count;
+extern const unsigned int marker_count;
 
-extern const font_t font_lib[];
-extern const int font_count;
+extern const lv_font_t font_lib[];
+extern const unsigned int font_count;

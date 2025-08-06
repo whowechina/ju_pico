@@ -9,6 +9,11 @@
 
 #define GRID_PITCH (GRID_SIZE + GRID_GAP)
 
+unsigned int grid_pitch()
+{
+    return GRID_PITCH;
+}
+
 typedef struct {
     bool active;
     uint8_t marker;

@@ -21,6 +21,6 @@
 #elif defined BOARD_JU_MATRIX_PLUS
 #define PANEL_WIDTH 128
 #define PANEL_HEIGHT 128
-#define GRID_SIZE 28
-#define GRID_GAP 6
+#define GRID_SIZE 26
+#define GRID_GAP 8
 #endif

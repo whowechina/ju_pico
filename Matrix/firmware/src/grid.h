@@ -9,7 +9,7 @@
 
 void grid_set_marker(int marker);
 
-void grid_init();
+unsigned int grid_pitch();
 
 void grid_test(int col, int row, int marker);
 

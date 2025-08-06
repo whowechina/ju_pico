@@ -54,7 +54,7 @@ static inline uint32_t hub75_argb(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
 
 static inline uint32_t hub75_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
-    return hub75_argb(0xff, r, g, b);
+    return hub75_argb(0x00, r, g, b);
 }
 
 static inline uint32_t hub75_color(uint32_t rgb)
@@ -82,6 +82,10 @@ static inline uint32_t hub75_alpha(uint8_t alpha, uint32_t rgb)
 
 static inline void hub75_blend(int x, int y, uint32_t argb)
 {
+    if ((x < 0) ||( x >= PANEL_WIDTH) || (y < 0) || (y >= PANEL_HEIGHT)) {
+        return;
+    }
+
     uint32_t r1 = GAMMA_10BIT[(argb >> 16) & 0xff];
     uint32_t g1 = GAMMA_10BIT[(argb >> 8) & 0xff];
     uint32_t b1 = GAMMA_10BIT[argb & 0xff];

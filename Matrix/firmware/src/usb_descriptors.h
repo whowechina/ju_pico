@@ -24,7 +24,7 @@ enum {
         HID_REPORT_ID(REPORT_ID_JUBEATHAX)                                   \
         HID_USAGE(0xc5),                                                     \
         HID_USAGE_MIN(0x00), HID_USAGE_MAX_N(255, 2),                        \
-        HID_REPORT_COUNT(63), HID_REPORT_SIZE(8),                            \
+        HID_REPORT_COUNT(19), HID_REPORT_SIZE(8),                            \
         HID_FEATURE(HID_DATA | HID_VARIABLE | HID_ABSOLUTE),                 \
     HID_COLLECTION_END
 

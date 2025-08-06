@@ -93,20 +93,11 @@
 #include "res/marker_plus/mk0049_ave.h"
 #endif
 
-
-#include "res/font/dejavuserif_16x20_4bit.h"
-#include "res/font/digit_dejavusansmono_9x12_4bit.h"
-
-/*
-#include "res/font/digit_dejavusansmono_16x20_4bit.h"
-#include "res/font/digit_dejavusansmono_bold_16x20_4bit.h"
-#include "res/font/digit_dejavusansmono_bold_9x12_4bit.h"
-#include "res/font/digit_dincondensedbold_16x32_4bit.h"
-#include "res/font/digit_farah_16x32_4bit.h"
-#include "res/font/digit_noteworthy_16x32_4bit.h"
-#include "res/font/digit_papyrus_15x32_4bit.h"
-#include "res/font/digit_sana_17x32_4bit.h"
-*/
+#include "res/font/donegal1.h"
+#include "res/font/font_conthrax.h"
+#include "res/font/font_dejavu.h"
+#include "res/font/font_ltsaeada.h"
+#include "res/font/font_upheaval.h"
 
 const marker_res_t marker_lib[] = {
 #ifdef BOARD_JU_MATRIX
@@ -200,20 +191,13 @@ const marker_res_t marker_lib[] = {
 #endif
 };
 
-const int marker_count = count_of(marker_lib);
+const unsigned int marker_count = count_of(marker_lib);
 
-const font_t font_lib[] = {
-    DEF_digit_font_dejavuserif_16x20_4bit,
-    DEF_digit_font_dejavusansmono_9x12_4bit,
-/*    DEF_digit_font_dejavusansmono_16x20_4bit,
-    DEF_digit_font_dejavusansmono_bold_16x20_4bit,
-    DEF_digit_font_dejavusansmono_bold_9x12_4bit,
-    DEF_digit_font_dincondensedbold_16x32_4bit,
-    DEF_digit_font_farah_16x32_4bit,
-    DEF_digit_font_noteworthy_16x32_4bit,
-    DEF_digit_font_papyrus_15x32_4bit,
-    DEF_digit_font_sana_17x32_4bit,
-*/
+const lv_font_t font_lib[] = {
+    donegal1,
+    lv_lts16,
+    lv_lts14,
+    lv_upheaval,
 };
 
-const int font_count = count_of(font_lib);
+const unsigned int font_count = count_of(font_lib);

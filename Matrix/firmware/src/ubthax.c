@@ -109,11 +109,33 @@ void ubthax_proc(const uint8_t *buf, uint8_t len)
     }
 }
 
+static void set_phase(ubt_phase_t phase)
+{
+    if (current_phase == phase) {
+        return;
+    }
+
+    switch (phase) {
+        case UBT_IDLE:
+            break;
+        case UBT_STARTING:
+            score_set_combo(0);
+            score_set_score(0);
+            grid_preview_reset();
+            break;
+        case UBT_INGAME:
+            break;
+        case UBT_RESULT:
+            score_set_combo(0);
+            break;
+    }
+}
+
 static void process_ubthax_event(const ubthax_data_t *data)
 {
     switch (data->state) {
         case PREVIEW:
-            current_phase = UBT_STARTING;
+            set_phase(UBT_STARTING);
             break;
         case APPROACH:
         case PRESSED_MISS:
@@ -127,28 +149,30 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case LONG_NOTE_RELEASE_CONT:
         case LONG_NOTE_MISS_FIRST:
         case LONG_NOTE_MISS_CONT:
-            current_phase = UBT_INGAME;
+            set_phase(UBT_INGAME);
             break;
         case FINAL_SCORE:
         case FULL_COMBO:
         case EXCELLENT:
         case FULL_COMBO_ANIM:
         case EXCELLENT_ANIM:
-            current_phase = UBT_RESULT;
-            grid_preview_reset();
+            set_phase(UBT_RESULT);
             break;
         case LEAVE_RESULT_SCREEN:
-            grid_preview_reset();
-            current_phase = UBT_IDLE;
+            set_phase(UBT_IDLE);
             break;
     }
-    
+
+    const char *long_names[] = {
+        "first", "cont", "update", "release_first", "release_cont", "miss_first", "miss_cont"
+    };
+
     int col = data->note % 4;
     int row = data->note / 4;
     switch (data->state) {
         case PREVIEW:
             grid_preview(col, row);
-            break;
+            return;
         case APPROACH:
             grid_start(col, row, false);
             return;
@@ -170,8 +194,26 @@ static void process_ubthax_event(const ubthax_data_t *data)
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
             return;
-        default:
+        case LONG_TRAIL_DRAW_FIRST:
+        case LONG_TRAIL_DRAW_CONT:
+        case LONG_TRAIL_UPDATE:
+        case LONG_NOTE_RELEASE_FIRST:
+        case LONG_NOTE_RELEASE_CONT:
+        case LONG_NOTE_MISS_FIRST:
+        case LONG_NOTE_MISS_CONT: 
+            printf("L_%s\n", long_names[data->state - LONG_TRAIL_DRAW_FIRST]);
             return;
+        case FINAL_SCORE:
+            score_set_final_score(data->score.score);
+            return;
+        case FULL_COMBO:
+            score_set_fullcombo();
+            return;
+        case EXCELLENT:
+            score_set_excellent();
+            return;
+        default:
+            break;
     }
     printf("%3llu: %lu %lu %lu %lu\n", time_us_64() / 1000 % 1000,
             data->note, data->state, data->score.score, data->score.combo);
@@ -179,7 +221,7 @@ static void process_ubthax_event(const ubthax_data_t *data)
 
 void ubthax_update()
 {
-    if (time_us_64() > last_io_time + 10000000) {
+    if (time_us_64() > last_io_time + 30000000) {
         current_phase = UBT_IDLE;
         grid_preview_reset();
     }
