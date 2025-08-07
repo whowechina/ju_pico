@@ -17,7 +17,7 @@ static struct {
 } score_ctx;
 
 const uint32_t title_ani_duration = 500000;
-const uint32_t ranking_start = 1000000;
+const uint32_t ranking_start = 2000000;
 const uint32_t ranking_fade_in = 500000;
 
 void score_draw_combo()
@@ -170,15 +170,15 @@ void score_set_score(uint32_t score)
     score_ctx.score = score;
 }
 
-void score_set_final_score(uint32_t score)
+void score_end_result()
 {
-    score_ctx.score = score;
     score_ctx.start_time = time_us_64();
     score_ctx.title = RGB("\xc0\xc0\x10") "RESULT";
 }
 
-void score_set_fullcombo()
+void score_end_fullcombo()
 {
+    score_ctx.start_time = time_us_64();
     score_ctx.title = SPACING("\x00\x00")
                       RGB("\xe1\xad\xad") "F"
                       RGB("\xe1\xc7\xad") "-"
@@ -189,8 +189,9 @@ void score_set_fullcombo()
                       RGB("\xad\xad\xe1") "O";
 }
 
-void score_set_excellent()
+void score_end_excellent()
 {
+    score_ctx.start_time = time_us_64();
     score_ctx.title = SPACING("\xff\x00")
                       RGB("\xdc\x5a\x5a") "E"
                       RGB("\xdc\xb0\x5a") "X"

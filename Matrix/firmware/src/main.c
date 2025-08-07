@@ -146,9 +146,9 @@ void init()
 
     cli_init("ju_matrix>",
 #ifdef BOARD_JU_MATRIX
-             "\n   << Ju Matrix >>\n"
+             "\n       << Ju Matrix >>\n"
 #else
-             "\n   << Ju Matrix Plus >>\n"
+             "\n     << Ju Matrix Plus >>\n"
 #endif
             " https://github.com/whowechina\n\n");
 

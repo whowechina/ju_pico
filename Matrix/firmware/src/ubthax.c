@@ -16,7 +16,7 @@
 /* The following definitions are from CrazyRedMachine's JubeatHax.
    I'm not using submodule to include jubeathax for simplicity. */
 
-#define PRESSED (1<<5)
+#define JUDGE (1<<5)
 
 enum cell_state_e {
 	/* PENDING values: coincide with internal judgement states for convenience (meant for animating cells while waiting for press) */
@@ -27,14 +27,14 @@ enum cell_state_e {
 	GREAT                   = 4,                 /* button would be slightly early or late (green "good" window, [-24 ; 24]) */
 	PERFECT                 = 5,                 /* button would be on time! ("perfect" window, [-12 ; 12]) */
 
-	/* "Pressed" values: internal judgement states combined with the PRESSED flag (meant to handle button presses) */
-    PRESSED_MISS            = PRESSED|MISS,    /* button was pressed but not on time */
-    PRESSED_POOR            = PRESSED|POOR,      /* button was pressed very early or very late */
-	PRESSED_GOOD            = PRESSED|GOOD,      /* button was pressed early or late (blue "good" window) */
-	PRESSED_GREAT           = PRESSED|GREAT,     /* button was pressed slightly early or late (green "good" window) */
-	PRESSED_PERFECT         = PRESSED|PERFECT,   /* button was pressed on time ("perfect" window) */
+	/* "Pressed" values: internal judgement states combined with the JUDGE flag (meant to handle button presses) */
+    JUDGE_MISS            = JUDGE|MISS,      /* button was pressed but not on time */
+    JUDGE_POOR            = JUDGE|POOR,      /* button was pressed very early or very late */
+	JUDGE_GOOD            = JUDGE|GOOD,      /* button was pressed early or late (blue "good" window) */
+	JUDGE_GREAT           = JUDGE|GREAT,     /* button was pressed slightly early or late (green "good" window) */
+	JUDGE_PERFECT         = JUDGE|PERFECT,   /* button was pressed on time ("perfect" window) */
 
-	/* Long note trail control (meant to handle long notes in combination with the PRESSED states) */
+	/* Long note trail control (meant to handle long notes in combination with the JUDGE states) */
 	LONG_TRAIL_DRAW_FIRST   = 128,               /* a long note trail has appeared (sent only the first time) */
 	LONG_TRAIL_DRAW_CONT    = 129,               /* a long note trail has appeared (sent as long as the event is still part of the current chart chunk) */
 	LONG_TRAIL_UPDATE       = 130,               /* update long note trail while holding the button */
@@ -58,9 +58,13 @@ enum cell_state_e {
 };
 
 typedef struct __attribute__((packed)) {
-    uint32_t note;
+    uint32_t note : 4;
+    uint32_t long_dir : 2;
+    uint32_t long_len : 2;
+    uint32_t long_span : 24;
     uint32_t state;
     union {
+        uint8_t raw[8];
         float ratio;
         struct {
             uint32_t score;
@@ -73,17 +77,9 @@ static ubt_phase_t current_phase = UBT_IDLE;
 static uint64_t phase_start_time = 0;
 static queue_t ubthax_event_queue;
 
-static void marker_finish_cb(int col, int row, marker_mode_t mode)
-{
-    if (mode == MARKER_MISS) {
-        score_set_combo(0);
-    }
-}
-
 void ubthax_init()
 {
     queue_init(&ubthax_event_queue, sizeof(ubthax_data_t), 32);
-    grid_listen(marker_finish_cb);
 }
 
 ubt_phase_t ubthax_get_phase()
@@ -122,6 +118,8 @@ static void set_phase(ubt_phase_t phase)
         return;
     }
 
+    printf("%4ld: Phase %d -> %d\n", time_us_32() / 1000 % 10000, current_phase, phase);
+
     switch (phase) {
         case UBT_IDLE:
             break;
@@ -133,7 +131,6 @@ static void set_phase(ubt_phase_t phase)
         case UBT_INGAME:
             break;
         case UBT_RESULT:
-            score_set_combo(0);
             break;
     }
 
@@ -143,15 +140,17 @@ static void set_phase(ubt_phase_t phase)
 
 static void process_ubthax_event(const ubthax_data_t *data)
 {
+    const char *state = "Not Set";
+
     switch (data->state) {
         case PREVIEW:
             set_phase(UBT_STARTING);
             break;
         case APPROACH:
-        case PRESSED_MISS:
-        case PRESSED_GOOD:
-        case PRESSED_GREAT:
-        case PRESSED_PERFECT:
+        case JUDGE_MISS:
+        case JUDGE_GOOD:
+        case JUDGE_GREAT:
+        case JUDGE_PERFECT:
         case LONG_TRAIL_DRAW_FIRST:
         case LONG_TRAIL_DRAW_CONT:
         case LONG_TRAIL_UPDATE:
@@ -161,9 +160,10 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case LONG_NOTE_MISS_CONT:
             set_phase(UBT_INGAME);
             break;
-        case FINAL_SCORE:
         case FULL_COMBO:
         case EXCELLENT:
+            break;
+        case FINAL_SCORE:
         case FULL_COMBO_ANIM:
         case EXCELLENT_ANIM:
             set_phase(UBT_RESULT);
@@ -172,10 +172,6 @@ static void process_ubthax_event(const ubthax_data_t *data)
             set_phase(UBT_IDLE);
             break;
     }
-
-    const char *long_names[] = {
-        "first", "cont", "update", "release_first", "release_cont", "miss_first", "miss_cont"
-    };
 
     int col = data->note % 4;
     int row = data->note / 4;
@@ -192,55 +188,66 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case GREAT:
         case PERFECT:
             return;
-        case PRESSED_MISS:
+        case JUDGE_MISS:
             grid_judge(col, row, MARKER_MISS);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
             return;           
-        case PRESSED_POOR:
+        case JUDGE_POOR:
             grid_judge(col, row, MARKER_POOR);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
             return;
-        case PRESSED_GOOD:
+        case JUDGE_GOOD:
             grid_judge(col, row, MARKER_GOOD);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
             return;
-        case PRESSED_GREAT:
+        case JUDGE_GREAT:
             grid_judge(col, row, MARKER_GREAT);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
             return;
-        case PRESSED_PERFECT:
+        case JUDGE_PERFECT:
             grid_judge(col, row, MARKER_PERFECT);
             score_set_combo(data->score.combo);
             score_set_score(data->score.score);
             return;
         case LONG_TRAIL_DRAW_FIRST:
         case LONG_TRAIL_DRAW_CONT:
+            grid_start_trail(col, row, data->long_dir, data->long_len, data->long_span, 
+                             data->state == LONG_TRAIL_DRAW_FIRST);
+            return;
         case LONG_TRAIL_UPDATE:
+            grid_trail_update(col, row, data->ratio);
+            return;
         case LONG_NOTE_RELEASE_FIRST:
+            grid_end_trail(col, row);
+            return;
         case LONG_NOTE_RELEASE_CONT:
+            grid_end_trail(col, row);
+            return;
         case LONG_NOTE_MISS_FIRST:
-        case LONG_NOTE_MISS_CONT: 
-            printf("L_%s", long_names[data->state - LONG_TRAIL_DRAW_FIRST]);
-            printf(" %d %d %f\n", col, row, data->ratio);
+        case LONG_NOTE_MISS_CONT:
+            grid_end_trail(col, row);
             return;
         case FINAL_SCORE:
-            score_set_final_score(data->score.score);
+            score_set_score(data->score.score);
+            printf("Final Score: %lu\n", data->score.score);
+            score_end_result();
             return;
-        case FULL_COMBO:
-            score_set_fullcombo();
+        case FULL_COMBO_ANIM:
+            score_end_fullcombo();
             return;
-        case EXCELLENT:
-            score_set_excellent();
+        case EXCELLENT_ANIM:
+            score_end_excellent();
             return;
         default:
             break;
     }
-    printf("%3llu: %lu %lu %lu %lu\n", time_us_64() / 1000 % 1000,
-            data->note, data->state, data->score.score, data->score.combo);
+
+    printf("%4ld:%d%d %2lx:%s\n", time_us_32() / 1000 % 10000,
+            data->note % 4, data->note / 4, data->state, state);
 }
 
 void ubthax_update()
