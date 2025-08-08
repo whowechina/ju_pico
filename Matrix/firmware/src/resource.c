@@ -49,6 +49,8 @@
 #include "res/marker13/mk0047_hinabitter.h"
 #include "res/marker13/mk0048_jubeat_2021.h"
 #include "res/marker13/mk0049_ave.h"
+#include "res/marker13/trail13.h"
+
 #elif defined BOARD_JU_MATRIX_PLUS
 #include "res/marker23/mk0001_cyber.h"
 #include "res/marker23/mk0002_flower.h"
@@ -91,6 +93,8 @@
 #include "res/marker23/mk0047_hinabitter.h"
 #include "res/marker23/mk0048_jubeat_2021.h"
 #include "res/marker23/mk0049_ave.h"
+#include "res/marker23/trail23.h"
+
 #elif defined BOARD_JU_MATRIX_PLUS_CROP
 #include "res/marker27/mk0001_cyber.h"
 #include "res/marker27/mk0002_flower.h"
@@ -133,6 +137,8 @@
 #include "res/marker27/mk0047_hinabitter.h"
 #include "res/marker27/mk0048_jubeat_2021.h"
 #include "res/marker27/mk0049_ave.h"
+#include "res/marker27/trail27.h"
+
 #endif
 
 #include "res/font/donegal1.h"
@@ -141,8 +147,8 @@
 #include "res/font/font_ltsaeada.h"
 #include "res/font/font_upheaval.h"
 
-const marker_res_t marker_lib[] = {
 #ifdef BOARD_JU_MATRIX
+const marker_res_t marker_lib[] = {
     DEF_mk0001_cyber_c8_a8,
     DEF_mk0002_flower_c8_a8,
         // DEF_mk0003_afro_c8_a8,
@@ -187,7 +193,12 @@ const marker_res_t marker_lib[] = {
         // DEF_mk0028_jubeat_kun_c8_a8,
     DEF_mk0029_color_composition_c8_a8,
         // DEF_mk0037_s_c_u_c8_a8
+};
+
+const trail_res_t trail_res = DEF_trail13_c4_a4;
+
 #elif defined BOARD_JU_MATRIX_PLUS
+const marker_res_t marker_lib[] = {
     DEF_mk0001_cyber_c8_a8,
     DEF_mk0002_flower_c8_a8,
         // DEF_mk0003_afro_c8_a8,
@@ -230,7 +241,12 @@ const marker_res_t marker_lib[] = {
     DEF_mk0048_jubeat_2021_c8_a8,
     // DEF_mk0049_ave_c8_a8,
         // DEF_mk0028_jubeat_kun_c8_a8,
+};
+
+const trail_res_t trail_res = DEF_trail23_c4_a4;
+
 #elif defined BOARD_JU_MATRIX_PLUS_CROP
+const marker_res_t marker_lib[] = {
     DEF_mk0001_cyber_c8_a8,
     DEF_mk0002_flower_c8_a8,
         // DEF_mk0003_afro_c8_a8,
@@ -273,8 +289,11 @@ const marker_res_t marker_lib[] = {
     DEF_mk0048_jubeat_2021_c8_a8,
     DEF_mk0049_ave_c8_a8,
         // DEF_mk0028_jubeat_kun_c8_a8,
-#endif
 };
+
+const trail_res_t trail_res = DEF_trail27_c4_a4;
+
+#endif
 
 static_assert(count_of(marker_lib) > 0);
 const unsigned int marker_count = count_of(marker_lib);

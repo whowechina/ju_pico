@@ -28,6 +28,16 @@ typedef struct {
     animation_t modes[6];
 } marker_res_t;
 
+typedef struct {
+    animation_t stem;
+    animation_t marker_off;
+    animation_t marker_on;
+    animation_t marker_glow;
+    animation_t arrow_tail;
+    animation_t arrow;
+    animation_t arrow_zoom;
+} trail_res_t;
+
 typedef enum {
     MARKER_APPROACH = 0,
     MARKER_PERFECT,
