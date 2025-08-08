@@ -29,6 +29,7 @@
 #include "save.h"
 #include "config.h"
 #include "cli.h"
+#include "image.h"
 #include "commands.h"
 #include "ubthax.h"
 #include "matrix.h"

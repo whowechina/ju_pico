@@ -86,15 +86,17 @@ static inline void hub75_blend(int x, int y, uint32_t argb)
         return;
     }
 
-    uint32_t r1 = GAMMA_10BIT[(argb >> 16) & 0xff];
-    uint32_t g1 = GAMMA_10BIT[(argb >> 8) & 0xff];
-    uint32_t b1 = GAMMA_10BIT[argb & 0xff];
-
     uint32_t alpha = (argb >> 24) & 0xff;
 
     if (alpha == 0) {
         return;
-    } else if (alpha == 255) {
+    }
+
+    uint32_t r1 = GAMMA_10BIT[(argb >> 16) & 0xff];
+    uint32_t g1 = GAMMA_10BIT[(argb >> 8) & 0xff];
+    uint32_t b1 = GAMMA_10BIT[argb & 0xff];
+
+    if (alpha == 255) {
         canvas[y][x] = (b1 << 20) | (g1 << 10) | r1;
         return;
     }

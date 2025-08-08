@@ -1,4 +1,9 @@
-#ifndef MARKER_H
+/*
+ * Marker Animation Plotter
+ * WHowe <github.com/whowechina>
+ */
+
+ #ifndef MARKER_H
 #define MARKER_H
 
 #include <stdint.h>
@@ -14,6 +19,7 @@ typedef struct {
     union {
         const uint32_t *img32;
         const uint8_t *img8;
+        const uint8_t *image;
     };
 } animation_t;
 
