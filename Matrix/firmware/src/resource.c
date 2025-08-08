@@ -146,6 +146,7 @@
 #include "res/font/font_dejavu.h"
 #include "res/font/font_ltsaeada.h"
 #include "res/font/font_upheaval.h"
+#include "res/font/font_satisfy.h"
 
 #ifdef BOARD_JU_MATRIX
 const marker_res_t marker_lib[] = {
@@ -305,11 +306,13 @@ const lv_font_t font_lib[] = {
     lv_lts16,
     lv_lts14,
     lv_upheaval,
+    lv_satisfy,
 #elif defined BOARD_JU_MATRIX_PLUS || defined BOARD_JU_MATRIX_PLUS_CROP
     donegal1_64,
     lv_lts20,
     lv_lts20,
     lv_upheaval,
+    lv_satisfy,
 #endif
 };
 

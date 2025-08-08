@@ -93,11 +93,11 @@ static int get_rank(uint32_t score)
 static void score_draw_rank(uint8_t alpha)
 {
     int rank = get_rank(score_ctx.score);
-    const char *judge = rank <= 6 ? RGB("\x00\xc0\xc0" "CLEARED") :
-                                    RGB("\xc0\x80\x80" "FAILED");
-    font_spacing(0, 0);
-    font_draw_text(PANEL_WIDTH / 2, PANEL_HEIGHT / 4,
-                   judge, 2, alpha << 24, ALIGN_CENTER);
+
+    const char *judge = rank <= 6 ? SPACING("\x01\x00") RGB("\x00\xc0\xc0" "Cleared") :
+                                    SPACING("\x01\x00") RGB("\xc0\x80\x80" "Failed");
+    font_draw_text(PANEL_WIDTH / 2, PANEL_HEIGHT / 4 - 1,
+                   judge, 4, alpha << 24, ALIGN_CENTER);
 
     const char *ranks[] = {
         SPACING("\xfd\x00") RGB("\xff\x80\x80") "E" RGB("\xa0\xa0\xff") "X" RGB("\x80\xff\x80") "C",
@@ -112,8 +112,6 @@ static void score_draw_rank(uint8_t alpha)
     };
 
     const char *rank_str = ranks[rank];
-    
-    font_spacing(0, 0);
     font_draw_text(PANEL_WIDTH * 5 / 8, PANEL_HEIGHT / 2 + 1,
                    rank_str, 2, alpha << 24, ALIGN_CENTER);
 }
@@ -173,7 +171,7 @@ void score_set_score(uint32_t score)
 void score_end_result()
 {
     score_ctx.start_time = time_us_64();
-    score_ctx.title = RGB("\xc0\xc0\x10") "RESULT";
+    score_ctx.title = SPACING("\x01\x00") RGB("\xc0\xc0\x10") "RESULT";
 }
 
 void score_end_fullcombo()
