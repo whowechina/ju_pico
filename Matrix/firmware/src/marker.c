@@ -42,13 +42,14 @@ bool marker_is_end(int marker, marker_mode_t mode, uint32_t elapsed)
 
     const marker_res_t *res = &marker_lib[marker];
 
-    int frame_num = res->modes[mode].frame_num;
+    int total_frame = res->modes[mode].frame_num;
     if (mode == MARKER_APPROACH) {
-        frame_num += res->modes[MARKER_MISS].frame_num;
+        total_frame += res->modes[MARKER_MISS].frame_num;
     }
-    uint32_t frame_time_us = 1000000 / res->fps;
 
-    return elapsed > frame_num * frame_time_us;
+    int frame = calc_frame(res->fps, elapsed);
+
+    return frame >= total_frame;
 }
 
 void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
@@ -62,11 +63,11 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
 
     int frame = calc_frame(res->fps, elapsed);
 
-    int frame_num = ani->frame_num;
+    int total_frame = ani->frame_num;
     if (mode == MARKER_APPROACH) {
-        frame_num += res->modes[MARKER_MISS].frame_num;
-        if (frame >= res->modes[MARKER_APPROACH].frame_num) {
-            frame -= res->modes[MARKER_APPROACH].frame_num;
+        total_frame += res->modes[MARKER_MISS].frame_num;
+        if (frame >= res->modes[mode].frame_num) {
+            frame -= res->modes[mode].frame_num;
             ani = &res->modes[MARKER_MISS];
         }
     }
@@ -85,7 +86,8 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
         .alpha = ani->alpha,
         .image = ani->image,
     };
-    image_draw(x, y, &img,frame);
+
+    image_draw(x, y, &img, frame);
 }
 
 void marker_clear(int x, int y, uint32_t color)

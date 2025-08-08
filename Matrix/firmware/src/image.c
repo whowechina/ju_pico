@@ -7,14 +7,14 @@
 #include "image.h"
 #include "hub75.h"
 
-static inline uint32_t pixel_color(const image_t *img, uint16_t x, uint16_t y)
+static inline uint32_t pixel_color(const image_t *img, int x, int y)
 {
     uint32_t pixel = y * img->width + x;
 
     if (img->color_depth == 24) {
         return ((uint32_t*)img->image)[pixel];
     }
-    
+
     uint8_t pal_index;
     if (img->color_depth == 4) {
         uint32_t byte = pixel / 2;
@@ -50,7 +50,7 @@ static inline uint8_t extract_alpha(uint8_t bit_per_pixel, uint8_t byte, int sec
     }
 }
 
-static inline int pixel_alpha(const image_t *img, uint8_t x, uint8_t y)
+static inline int pixel_alpha(const image_t *img, int x, int y)
 {
     if (img->alpha_depth == 0) {
         return 255;
@@ -70,24 +70,25 @@ void image_draw(int x, int y, const image_t *img, unsigned int frame)
         return;
     }
 
-    uint8_t frame_num = img->frame_num == 0 ? 1 : img->frame_num;
+    int frame_num = img->frame_num == 0 ? 1 : img->frame_num;
 
     if (frame >= frame_num) {
         return;
     }
 
-    uint16_t frame_height = img->height / frame_num;
-    uint16_t frame_offset = frame * frame_height;
+    int frame_width = img->width;
+    int frame_height = img->height / frame_num;
+    int height_offset = frame * frame_height;
 
-    for (uint16_t dy = 0; dy < frame_height; dy++) {
-        for (uint16_t dx = 0; dx < img->width; dx++) {
-            uint32_t color = pixel_color(img, dx, frame_offset + dy);
+    for (int j = 0; j < frame_height; j++) {
+        for (int i = 0; i < frame_width; i++) {
+            uint32_t color = pixel_color(img, i, height_offset + j);
             if ((img->alpha_depth == 0) || img->alpha) {
-                uint8_t alpha = pixel_alpha(img, dx, frame_offset + dy);
+                uint8_t alpha = pixel_alpha(img, i, height_offset + j);
                 color = hub75_alpha(alpha, color);
             }
 
-            hub75_blend(x + dx, y + dy, color);
+            hub75_blend(x + i, y + j, color);
         }
     }
 }
