@@ -30,6 +30,8 @@ const static uint16_t GAMMA_10BIT[256] = {
     895, 903, 912, 920, 928, 937, 945, 954, 962, 971, 979, 988, 997, 1005, 1014, 1023
 };
 
+#define GAMMA_FIX(x) (GAMMA_10BIT[x])
+
 extern uint32_t canvas[PANEL_WIDTH][PANEL_HEIGHT];
 
 void hub75_init(bool fm6126, bool inverted_stb);
@@ -41,8 +43,8 @@ void hub75_pause();
 void hub75_resume();
 bool hub75_is_paused();
 
-uint16_t hub75_width();
-uint16_t hub75_height();
+static inline uint16_t hub75_width() { return PANEL_WIDTH; }
+static inline uint16_t hub75_height() { return PANEL_HEIGHT; }
 
 void hub75_clear();
 void hub75_fill(uint32_t rgb);
@@ -59,18 +61,10 @@ static inline uint32_t hub75_rgb(uint8_t r, uint8_t g, uint8_t b)
 
 static inline uint32_t hub75_color(uint32_t rgb)
 {
-    uint32_t r = GAMMA_10BIT[(rgb >> 16) & 0xff];
-    uint32_t g = GAMMA_10BIT[(rgb >> 8) & 0xff];
-    uint32_t b = GAMMA_10BIT[rgb & 0xff];
-    return (b << 20) | (g << 10) | r;
-}
-
-static inline void hub75_pixel(int x, int y, uint32_t rgb)
-{
-    if ((x < 0) ||( x >= PANEL_WIDTH) || (y < 0) || (y >= PANEL_HEIGHT)) {
-        return;
-    }
-    canvas[y][x] = hub75_color(rgb);
+    uint32_t r = GAMMA_FIX((rgb >> 16) & 0xff);
+    uint32_t g = GAMMA_FIX((rgb >> 8) & 0xff);
+    uint32_t b = GAMMA_FIX(rgb & 0xff);
+    return (r << 20) | (g << 10) | b;
 }
 
 uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v);
@@ -78,6 +72,14 @@ uint32_t hub75_hsv2rgb(uint8_t h, uint8_t s, uint8_t v);
 static inline uint32_t hub75_alpha(uint8_t alpha, uint32_t rgb)
 {
     return (alpha << 24) | (rgb & 0x00ffffff);
+}
+
+static inline void hub75_plot(int x, int y, uint32_t rgb)
+{
+    if ((x < 0) ||( x >= PANEL_WIDTH) || (y < 0) || (y >= PANEL_HEIGHT)) {
+        return;
+    }
+    canvas[y][x] = hub75_color(rgb);
 }
 
 static inline void hub75_blend(int x, int y, uint32_t argb)
@@ -92,24 +94,24 @@ static inline void hub75_blend(int x, int y, uint32_t argb)
         return;
     }
 
-    uint32_t r1 = GAMMA_10BIT[(argb >> 16) & 0xff];
-    uint32_t g1 = GAMMA_10BIT[(argb >> 8) & 0xff];
-    uint32_t b1 = GAMMA_10BIT[argb & 0xff];
+    uint32_t r1 = GAMMA_FIX((argb >> 16) & 0xff);
+    uint32_t g1 = GAMMA_FIX((argb >> 8) & 0xff);
+    uint32_t b1 = GAMMA_FIX(argb & 0xff);
 
     if (alpha == 255) {
-        canvas[y][x] = (b1 << 20) | (g1 << 10) | r1;
+        canvas[y][x] = r1 << 20 | g1 << 10 | b1;
         return;
     }
 
-    uint32_t r0 = canvas[y][x] & 0x3ff;
+    uint32_t r0 = (canvas[y][x] >> 20) & 0x3ff;
     uint32_t g0 = (canvas[y][x] >> 10) & 0x3ff;
-    uint32_t b0 = (canvas[y][x] >> 20) & 0x3ff;
+    uint32_t b0 = canvas[y][x] & 0x3ff;
 
     uint32_t r_mix = (r1 * alpha + r0 * (255 - alpha)) >> 8;
     uint32_t g_mix = (g1 * alpha + g0 * (255 - alpha)) >> 8;
     uint32_t b_mix = (b1 * alpha + b0 * (255 - alpha)) >> 8;
-    canvas[y][x] = (b_mix << 20) | (g_mix << 10) | r_mix;
-}
 
+    canvas[y][x] = (r_mix << 20) | (g_mix << 10) | b_mix;
+}
 
 #endif

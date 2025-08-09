@@ -31,7 +31,7 @@
 uint32_t canvas[PANEL_HEIGHT][PANEL_WIDTH] = {0};
 
 #define BACK_BUF_ROW_N (1 << HUB75_ROWSEL_N_PINS)
-uint32_t back_buffer[BACK_BUF_ROW_N][PANEL_WIDTH * PANEL_HEIGHT / BACK_BUF_ROW_N];
+static uint32_t back_buffer[BACK_BUF_ROW_N][PANEL_WIDTH * PANEL_HEIGHT / BACK_BUF_ROW_N];
 
 struct {
     PIO pio;
@@ -64,9 +64,9 @@ struct {
     .row = 0,
     .bit = 0,
 #ifdef BOARD_JU_MATRIX
-    .brightness = 18,
+    .brightness = 46,
 #else
-    .brightness = 10,
+    .brightness = 23,
 #endif
     .clk_polarity = 1,
     .stb_polarity = 1,
@@ -293,12 +293,14 @@ bool hub75_is_paused()
 
 static inline uint32_t rgb_fix(uint32_t color)
 {
+    uint32_t r = ((color >> 20) & 0x3ff);
+    uint32_t g = ((color >> 10) & 0x3ff);
+    uint32_t b = (color & 0x3ff);
+
     if (matrix_cfg->panel.rgb_order == 1) {
-        uint32_t a = color >> 20;
-        uint32_t bc = color & 0xfffff;
-        return (bc << 10) | a;
+        return (g << 20) | (r << 10) | b;
     } else {
-        return color;
+        return (b << 20) | (g << 10) | r;
     }
 }
 

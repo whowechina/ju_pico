@@ -16,7 +16,7 @@ static struct {
     const char *title;
 } score_ctx;
 
-const uint32_t title_ani_duration = 500000;
+const uint32_t title_ani_duration = 750000;
 const uint32_t ranking_start = 2000000;
 const uint32_t ranking_fade_in = 500000;
 
@@ -29,8 +29,8 @@ void score_draw_combo()
     char str[10];
     snprintf(str, sizeof(str), "%lu", score_ctx.combo);
     uint32_t color = matrix_cfg->game.color.combo | 0xff000000;
-    uint32_t x_pos = PANEL_WIDTH / 2;
-    uint32_t y_pos = PANEL_HEIGHT / 4 + 1;
+    uint32_t x_pos = hub75_width() / 2;
+    uint32_t y_pos = hub75_height() / 4 + 1;
 
     font_spacing(-1, -1);
     font_draw_text(x_pos, y_pos, str, 0, color, ALIGN_CENTER);
@@ -47,11 +47,12 @@ int calc_brake_pos(int start, int end, uint32_t duration, uint32_t elapsed)
 
     uint32_t left = 1000 - t;
 
-    uint32_t cubic = left;
-    cubic = (cubic * left) / 1000;
-    cubic = (cubic * left) / 1000;
+    uint32_t brake = left;
+    brake = (brake * left) / 1000;
+    brake = (brake * left) / 1000;
+    brake = (brake * left) / 1000;
 
-    int progress = 1000 - cubic;
+    int progress = 1000 - brake;
     
     return start + (distance * progress) / 1000;
 }
@@ -60,8 +61,8 @@ static void score_draw_score(uint8_t alpha)
 {
     char str[24];
     snprintf(str, sizeof(str), "%lu", score_ctx.score);
-    uint32_t x_pos = PANEL_WIDTH / 2;
-    uint32_t y_pos = PANEL_HEIGHT * 3 / 4 + 1;
+    uint32_t x_pos = hub75_width() / 2;
+    uint32_t y_pos = hub75_height() * 3 / 4 + 1;
     uint32_t color = matrix_cfg->game.color.score | (alpha << 24);
     font_spacing(0, 0);
     font_draw_text(x_pos, y_pos, str, 1, color, ALIGN_CENTER);
@@ -96,8 +97,22 @@ static void score_draw_rank(uint8_t alpha)
 
     const char *judge = rank <= 6 ? SPACING("\x01\x00") RGB("\x00\xc0\xc0" "Cleared") :
                                     SPACING("\x01\x00") RGB("\xc0\x80\x80" "Failed");
-    font_draw_text(PANEL_WIDTH / 2, PANEL_HEIGHT / 4 - 1,
-                   judge, 4, alpha << 24, ALIGN_CENTER);
+
+    int elapsed = (time_us_64() - score_ctx.start_time) / 1000;
+
+    int progress = abs(elapsed % 4000 - 2000) - 1000;
+    int sign = progress >= 0 ? 1 : -1;
+    int abs_val = abs(progress);
+    int remaining = 1000 - abs_val;
+    abs_val = 1000 - (remaining * remaining) / 1000;
+    progress = sign * abs_val;
+
+    int swing = (hub75_width() / 8) << 8;
+    int offset = progress * swing / 1000;;
+
+    int x = (hub75_width() << 8) / 2 + offset / 2;
+    int y = (hub75_height() << 8) / 4 - 1;
+    font_draw_text_smooth(x, y, judge, 4, alpha << 24, ALIGN_CENTER);
 
     const char *ranks[] = {
         SPACING("\xfd\x00") RGB("\xff\x80\x80") "E" RGB("\xa0\xa0\xff") "X" RGB("\x80\xff\x80") "C",
@@ -112,29 +127,30 @@ static void score_draw_rank(uint8_t alpha)
     };
 
     const char *rank_str = ranks[rank];
-    font_draw_text(PANEL_WIDTH * 5 / 8, PANEL_HEIGHT / 2 + 1,
+    font_draw_text(hub75_width() * 5 / 8, hub75_height() / 2 + 1,
                    rank_str, 2, alpha << 24, ALIGN_CENTER);
 }
 
 static inline uint8_t ease_in(uint8_t alpha)
 {
-    return (alpha * alpha) / 255;
+    uint32_t result = (alpha * alpha) >> 8;
+    return result;
 }
 
 static void score_draw_title()
 {
     uint64_t elapsed = time_us_64() - score_ctx.start_time;
 
-    int center = PANEL_HEIGHT * 3 / 8;
-    int pos_up = calc_brake_pos(center, -1, title_ani_duration, elapsed);
+    int center = (hub75_height() * 3 / 8) << 8;
+    int pos_up = calc_brake_pos(center, 0, title_ani_duration, elapsed);
 
     int alpha = 255;
     if (elapsed < title_ani_duration) {
         alpha = ease_in(elapsed * 255 / title_ani_duration);
     }
-    int pos_dn = calc_brake_pos(center, PANEL_HEIGHT * 7 / 8 - 6, title_ani_duration, elapsed);
+    int pos_dn = calc_brake_pos(center, (hub75_height() * 7 / 8 - 6) << 8, title_ani_duration, elapsed);
 
-    font_draw_text(PANEL_WIDTH / 2, pos_up, score_ctx.title, 2, alpha << 24, ALIGN_CENTER);
+    font_draw_text_smooth((hub75_width() / 2) << 8, pos_up, score_ctx.title, 2, alpha << 24, ALIGN_CENTER);
 
     if (elapsed >= ranking_start) {
         alpha = 0;
@@ -144,7 +160,7 @@ static void score_draw_title()
         }
     }
 
-    font_draw_text(PANEL_WIDTH / 2, pos_dn, score_ctx.title, 2, alpha << 24, ALIGN_CENTER);
+    font_draw_text_smooth((hub75_width() / 2) << 8, pos_dn, score_ctx.title, 2, alpha << 24, ALIGN_CENTER);
 }
 
 void score_draw_final()

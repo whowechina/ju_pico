@@ -53,4 +53,8 @@ void font_spacing(int dx, int dy);
 void font_draw_text(int x, int y, const char *text, int font,
                     uint32_t argb, alignment_t align);
 
+// x_fp and y_fp are in 1/256 pixel units
+void font_draw_text_smooth(int x_fp, int y_fp, const char *text, int font,
+                           uint32_t argb, alignment_t align);
+
 #endif
