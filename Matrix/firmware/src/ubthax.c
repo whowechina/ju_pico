@@ -28,7 +28,8 @@ enum cell_state_e {
 	PERFECT                 = 5,                 /* button would be on time! ("perfect" window, [-12 ; 12]) */
 
 	/* "Pressed" values: internal judgement states combined with the JUDGE flag (meant to handle button presses) */
-    JUDGE_MISS            = JUDGE|MISS,      /* button was pressed but not on time */
+	JUDGE_DROP            = JUDGE|APPROACH,  /* button was pressed but not on time */
+	JUDGE_MISS            = JUDGE|MISS,      /* button was pressed but not on time */
     JUDGE_POOR            = JUDGE|POOR,      /* button was pressed very early or very late */
 	JUDGE_GOOD            = JUDGE|GOOD,      /* button was pressed early or late (blue "good" window) */
 	JUDGE_GREAT           = JUDGE|GREAT,     /* button was pressed slightly early or late (green "good" window) */
@@ -140,13 +141,14 @@ static void set_phase(ubt_phase_t phase)
 
 static void process_ubthax_event(const ubthax_data_t *data)
 {
-    const char *state = "Not Set";
+    char info[32] = "Not Set";
 
     switch (data->state) {
         case PREVIEW:
             set_phase(UBT_STARTING);
             break;
         case APPROACH:
+        case JUDGE_DROP:
         case JUDGE_MISS:
         case JUDGE_GOOD:
         case JUDGE_GREAT:
@@ -180,7 +182,7 @@ static void process_ubthax_event(const ubthax_data_t *data)
             grid_preview(col, row);
             return;
         case APPROACH:
-            grid_start(col, row, false);
+            grid_schedule(col, row, false);
             return;
         case MISS:
         case POOR:
@@ -188,42 +190,52 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case GREAT:
         case PERFECT:
             return;
+        case JUDGE_DROP:
         case JUDGE_MISS:
             grid_judge(col, row, MARKER_MISS);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            return;           
+            sprintf(info, "miss");
+            break;           
         case JUDGE_POOR:
             grid_judge(col, row, MARKER_POOR);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            return;
+            sprintf(info, "poor");
+            break;           
         case JUDGE_GOOD:
             grid_judge(col, row, MARKER_GOOD);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            return;
+            sprintf(info, "good");
+            break;           
         case JUDGE_GREAT:
             grid_judge(col, row, MARKER_GREAT);
             score_set_score(data->score.score);
             score_set_combo(data->score.combo);
-            return;
-        case JUDGE_PERFECT:
+            sprintf(info, "great");
+            break;           
+         case JUDGE_PERFECT:
             grid_judge(col, row, MARKER_PERFECT);
             score_set_combo(data->score.combo);
             score_set_score(data->score.score);
-            return;
-        case LONG_TRAIL_DRAW_FIRST:
+            sprintf(info, "perfect");
+            break;           
+         case LONG_TRAIL_DRAW_FIRST:
+            grid_attach_trail(col, row, data->long_dir, data->long_len, data->long_span, true);
+            sprintf(info, "trail span:%d", data->long_span);
+            break;
         case LONG_TRAIL_DRAW_CONT:
-            grid_start_trail(col, row, data->long_dir, data->long_len, data->long_span, 
-                             data->state == LONG_TRAIL_DRAW_FIRST);
+            grid_attach_trail(col, row, data->long_dir, data->long_len, data->long_span, false);
             return;
         case LONG_TRAIL_UPDATE:
-            grid_trail_update(col, row, data->ratio);
+            grid_update_trail(col, row, data->ratio);
+            sprintf(info, "update:%f", data->ratio);
             return;
         case LONG_NOTE_RELEASE_FIRST:
+            sprintf(info, "trail end");
             grid_end_trail(col, row);
-            return;
+            break;
         case LONG_NOTE_RELEASE_CONT:
             grid_end_trail(col, row);
             return;
@@ -246,8 +258,8 @@ static void process_ubthax_event(const ubthax_data_t *data)
             break;
     }
 
-    printf("%4ld:%d%d %2lx:%s\n", time_us_32() / 1000 % 10000,
-            data->note % 4, data->note / 4, data->state, state);
+    printf("%5ld:%d%d %2lx %s\n", time_us_32() / 1000 % 100000,
+            data->note % 4, data->note / 4, data->state, info);
 }
 
 void ubthax_update()

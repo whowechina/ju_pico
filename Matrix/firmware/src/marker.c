@@ -73,7 +73,7 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
     }
 
     if (frame >= ani->frame_num) {
-        frame = ani->frame_num - 1;
+        return;
     }
 
     const image_t img = {

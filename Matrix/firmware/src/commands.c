@@ -177,7 +177,7 @@ static void handle_marker(int argc, char *argv[])
         }
 
         matrix_cfg->game.marker = marker;
-        grid_start(marker % 4, marker / 4 % 4, true);
+        grid_schedule(marker % 4, marker / 4 % 4, true);
     } else if (choice == 2) {
         int delay = cli_extract_non_neg_int(argv[1], 0);
         if ((delay < 0) || (delay > 1000)) {
