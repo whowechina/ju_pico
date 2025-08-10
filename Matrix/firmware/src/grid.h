@@ -26,6 +26,8 @@ void grid_update_trail(int col, int row, float ratio);
 void grid_end_trail(int col, int row);
 
 bool grid_is_active(int col, int row);
+bool grid_is_started(int col, int row);
+bool grid_is_moving(int col, int row);
 int grid_last_marker(int col, int row);
 int grid_last_mode(int col, int row);
 

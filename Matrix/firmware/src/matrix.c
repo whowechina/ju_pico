@@ -30,11 +30,29 @@ void matrix_init()
 
 static void run_idle()
 {
+    
     if (rand() % 10000 < 20) {
         int col = rand() % 4;
         int row = rand() % 4;
         if (!grid_is_active(col, row)) {
-            grid_test(col, row, rand() % marker_num());
+    //        grid_test(col, row, rand() % marker_num());
+        }
+    }
+
+    score_set_combo(123);
+    score_draw_combo();
+
+    uint32_t now = time_us_32() / 1000;
+    if (now / 100 % 50 == 0) {
+        if (!grid_is_active(3, 1)) {
+            grid_schedule(3, 1, true);
+            grid_attach_trail(3, 1, 2, 2, 666, true);
+        }
+    } else if (now / 100 % 50 == 8) {
+        if (grid_is_started(3, 1)) {
+            if (!grid_is_moving(3, 1)) {
+                grid_judge(3, 1, MARKER_PERFECT);
+            }
         }
     }
 

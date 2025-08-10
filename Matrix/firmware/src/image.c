@@ -34,9 +34,9 @@ static inline uint32_t pixel_color(const image_t *img, int x, int y)
     return img->palette[pal_index];
 }
 
-static inline uint8_t extract_alpha(uint8_t bit_per_pixel, uint8_t byte, int sector)
+static inline uint8_t extract_alpha(uint8_t bitwidth, uint8_t byte, int sector)
 {
-    switch (bit_per_pixel) {
+    switch (bitwidth) {
         case 1:
             return (byte >> (7 - sector)) & 0x01 ? 0xff : 0x00;
         case 2:
@@ -64,13 +64,16 @@ static inline int pixel_alpha(const image_t *img, int x, int y)
     return extract_alpha(img->alpha_depth, img->alpha[byte], section);
 }
 
-void image_draw(int x, int y, const image_t *img, unsigned int frame)
+void image_draw(int x, int y, const image_t *img, int frame, uint8_t alpha, uint8_t rotate)
 {
     if (!img) {
         return;
     }
+    if (alpha == 0) {
+        return;
+    }
 
-    int frame_num = img->frame_num == 0 ? 1 : img->frame_num;
+    int frame_num = img->frame_num <= 0 ? 1 : img->frame_num;
 
     if (frame >= frame_num) {
         return;
@@ -83,12 +86,41 @@ void image_draw(int x, int y, const image_t *img, unsigned int frame)
     for (int j = 0; j < frame_height; j++) {
         for (int i = 0; i < frame_width; i++) {
             uint32_t color = pixel_color(img, i, height_offset + j);
+            uint8_t mix_alpha = color >> 24;
             if ((img->alpha_depth == 0) || img->alpha) {
-                uint8_t alpha = pixel_alpha(img, i, height_offset + j);
-                color = hub75_alpha(alpha, color);
+                mix_alpha = pixel_alpha(img, i, height_offset + j);
+            }
+            if (alpha != 255) {
+                mix_alpha = (mix_alpha * alpha) / 255;
             }
 
-            hub75_blend(x + i, y + j, color);
+            color = hub75_alpha(mix_alpha, color);
+
+            int draw_x, draw_y;
+            switch (rotate) {
+                case 0: // No rotation
+                    draw_x = x + i;
+                    draw_y = y + j;
+                    break;
+                case 1: // 90 degrees clockwise
+                    draw_x = x + (frame_height - 1 - j);
+                    draw_y = y + i;
+                    break;
+                case 2: // 180 degrees
+                    draw_x = x + (frame_width - 1 - i);
+                    draw_y = y + (frame_height - 1 - j);
+                    break;
+                case 3: // 270 degrees clockwise (90 counter-clockwise)
+                    draw_x = x + j;
+                    draw_y = y + (frame_width - 1 - i);
+                    break;
+                default:
+                    draw_x = x + i;
+                    draw_y = y + j;
+                    break;
+            }
+
+            hub75_blend(draw_x, draw_y, color);
         }
     }
 }

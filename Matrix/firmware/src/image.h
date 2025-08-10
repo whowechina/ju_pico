@@ -20,6 +20,7 @@ typedef struct {
     const uint8_t *image;
 } image_t;
 
-void image_draw(int x, int y, const image_t *img, unsigned int frame);
+void image_draw(int x, int y, const image_t *img, int frame, uint8_t alpha, uint8_t rotate);
+
 
 #endif

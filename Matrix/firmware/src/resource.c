@@ -4,6 +4,8 @@
 #include "marker.h"
 #include "font.h"
 
+//#define DEBUG
+
 #ifdef BOARD_JU_MATRIX
 #include "res/marker13/mk0001_cyber.h"
 #include "res/marker13/mk0002_flower.h"
@@ -151,6 +153,7 @@
 #ifdef BOARD_JU_MATRIX
 const marker_res_t marker_lib[] = {
     DEF_mk0001_cyber_c8_a8,
+#ifndef DEBUG
     DEF_mk0002_flower_c8_a8,
         // DEF_mk0003_afro_c8_a8,
     DEF_mk0004_shutter_c8_a8,
@@ -194,6 +197,7 @@ const marker_res_t marker_lib[] = {
         // DEF_mk0028_jubeat_kun_c8_a8,
     DEF_mk0029_color_composition_c8_a8,
         // DEF_mk0037_s_c_u_c8_a8
+#endif
 };
 
 const trail_res_t trail_res = DEF_trail13_c4_a4;

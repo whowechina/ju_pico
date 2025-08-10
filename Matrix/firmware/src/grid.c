@@ -7,6 +7,7 @@
 #include "marker.h"
 #include "hub75.h"
 #include "grid.h"
+#include "font.h"
 
 #ifndef GRID_OFFSET_X
 #define GRID_OFFSET_X 0
@@ -28,7 +29,7 @@ typedef struct {
     uint32_t dir : 2; // 0: down, 1: up, 2: right, 3: left
     uint32_t len : 2;
     uint32_t span : 24;
-    uint32_t ratio;
+    uint32_t remain;
     bool moving;
 } trail_t;
 
@@ -98,6 +99,8 @@ void grid_schedule(int col, int row, bool override)
     cell->marker = matrix_cfg->game.marker;
     cell->mode = MARKER_APPROACH;
 
+    cell->trail.attached = false;
+    cell->trail.moving = false;
     cell->started = false;
     cell->schedule = time_us_64() + matrix_cfg->game.start_delay_ms * 1000;
 }
@@ -108,7 +111,7 @@ void grid_judge(int col, int row, marker_mode_t mode)
         return;
     }
 
-    if (!grid_is_active(col, row)) {
+    if (!grid_is_started(col, row)) {
         return;
     }
 
@@ -144,6 +147,26 @@ bool grid_is_active(int col, int row)
     return cell->started || (cell->schedule > 0);
 }
 
+bool grid_is_started(int col, int row)
+{
+    if (out_of_bound(col, row)) {
+        return false;
+    }
+    
+    grid_cell_t *cell = &grid_ctx.grid[col][row];
+    return cell->started;
+}
+
+bool grid_is_moving(int col, int row)
+{
+    if (out_of_bound(col, row)) {
+        return false;
+    }
+
+    grid_cell_t *cell = &grid_ctx.grid[col][row];
+    return (cell->started && cell->trail.attached && cell->trail.moving);
+}
+
 int grid_last_marker(int col, int row)
 {
     if (out_of_bound(col, row)) {
@@ -176,18 +199,31 @@ static void update_cell(grid_cell_t *cell, int col, int row)
     }
 
     trail_t *trail = &cell->trail;
-    if (trail->attached && trail->moving) {
-        int elapsed = (update_time - trail->start) * 1024 / trail->span / 3333;
-        trail->ratio = elapsed <= 1024 ? (1024 - elapsed) : 0;
+    if (grid_is_moving(col, row)) {
+        int elapsed = (update_time - trail->start) / 3333;
+        int remain = trail->span - elapsed;
+        if (remain >= 0) {
+            trail->remain = remain;
+        } else if (remain > -15) {
+            trail->remain = 0;
+        } else {
+            trail->moving = false;
+            trail->attached = false;
+        }
     }
 
     uint64_t elapsed = update_time - cell->start;
-    if (!marker_is_end(cell->marker, cell->mode, elapsed) ||
-        cell->trail.attached) {
+
+    if (!marker_is_end(cell->marker, cell->mode, elapsed)) {
+        return;
+    }
+
+    if (cell->trail.attached && cell->trail.moving) {
         return;
     }
 
     cell->started = false;
+    cell->trail.attached = false;
 
     if (grid_ctx.on_finish) {
         grid_ctx.on_finish(col, row, cell->mode);
@@ -206,16 +242,16 @@ void grid_update()
     }
 }
 
-static void trail_draw(int x, int y, const trail_t *trail)
+static void draw_trail_line(int x, int y, const trail_t *trail)
 {
     int sx = x;
     int sy = y;
     int dx = sx;
     int dy = sy;
 
-    int ratio = trail->ratio;
+    int len = trail->remain;
 
-    int real_len = (ratio * GRID_PITCH * trail->len) >> 10;
+    int real_len = (len * GRID_PITCH * trail->len) / trail->span;
     switch (trail->dir) {
         case 0: // down
             sy -= real_len;
@@ -238,25 +274,65 @@ static void trail_draw(int x, int y, const trail_t *trail)
     }
 }
 
+static void trail_draw(int x, int y, const trail_t *trail)
+{
+    if (!trail->attached) {
+        return;
+    }
+
+    int frame = 0;
+
+    uint64_t now = time_us_64();
+
+    if (trail->moving) {
+        frame = (now - trail->start) / 33333;
+    }
+
+    marker_draw_socket(x, y, 0, trail->moving, trail->dir);
+
+    int distance = (trail->remain * trail->len * GRID_PITCH) / trail->span;
+
+    if (distance > GRID_PITCH) {
+        marker_draw_stem(x, y, frame, GRID_PITCH, trail->dir);
+    }
+
+    if (distance > GRID_PITCH * 2)
+    {
+        marker_draw_stem(x, y, frame, GRID_PITCH * 2, trail->dir);
+    }
+
+    if (frame < marker_arrow_grow_frames()) {
+        marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir);
+    } else {
+        marker_draw_arrow(x, y, distance, trail->dir);
+    }
+
+
+    if (0) draw_trail_line(x + GRID_SIZE / 2, y + GRID_SIZE / 2, trail);
+
+    if (trail->moving) {
+        marker_draw_glow(x, y, frame);
+    }
+}
 
 void grid_render()
 {
     for (int col = 0; col < 4; col++) {
         for (int row = 0; row < 4; row++) {
             grid_cell_t *cell = &grid_ctx.grid[col][row];
-            uint64_t elapsed = update_time - cell->start;
-
-            if (cell->started) {
-                int x = col * GRID_PITCH + GRID_OFFSET_X;
-                int y = row * GRID_PITCH + GRID_OFFSET_Y;
-                marker_draw(x, y, cell->marker, cell->mode, elapsed);
+            if (!cell->started) {
+                continue;
             }
 
-            if (cell->trail.attached && cell->started) {
-                int x = col * GRID_PITCH + GRID_OFFSET_X + GRID_SIZE / 2;
-                int y = row * GRID_PITCH + GRID_OFFSET_Y + GRID_SIZE / 2;
+            int x = col * GRID_PITCH + GRID_OFFSET_X;
+            int y = row * GRID_PITCH + GRID_OFFSET_Y;
+
+            if (cell->trail.attached) {
                 trail_draw(x, y, &cell->trail);
             }
+
+            uint64_t elapsed = update_time - cell->start;
+            marker_draw(x, y, cell->marker, cell->mode, elapsed);
         }
     }
 }
@@ -287,6 +363,10 @@ void grid_attach_trail(int col, int row, int dir, int len, uint32_t span, bool o
         return;
     }
 
+    if (span == 0) {
+        return;
+    }
+
     if (!grid_is_active(col, row)) {
         return;
     }
@@ -307,7 +387,7 @@ void grid_attach_trail(int col, int row, int dir, int len, uint32_t span, bool o
     trail->dir = dir;
     trail->len = len;
     trail->span = span;
-    trail->ratio = 1024;
+    trail->remain = span;
 }
 
 void grid_update_trail(int col, int row, float ratio)
@@ -316,8 +396,6 @@ void grid_update_trail(int col, int row, float ratio)
         return;
     }
 
-    return;
-
     grid_cell_t *cell = &grid_ctx.grid[col][row];
     trail_t *trail = &cell->trail;
 
@@ -325,8 +403,12 @@ void grid_update_trail(int col, int row, float ratio)
         return;
     }
 
-    trail->moving = true;
-    trail->ratio = (int)(ratio * 1024) / trail->len;
+    if (!trail->moving) {
+        trail->moving = true;
+        trail->start = time_us_64();
+        int overtime = ratio * 3333 * trail->span;
+        trail->start -= overtime / trail->len;
+    }
 }
 
 void grid_end_trail(int col, int row)

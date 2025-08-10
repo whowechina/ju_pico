@@ -35,7 +35,7 @@ typedef struct {
     animation_t marker_glow;
     animation_t arrow_tail;
     animation_t arrow;
-    animation_t arrow_zoom;
+    animation_t arrow_grow;
 } trail_res_t;
 
 typedef enum {
@@ -52,5 +52,13 @@ unsigned int marker_num();
 bool marker_is_end(int marker, marker_mode_t mode, uint32_t elapsed);
 void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed);
 void marker_clear(int x, int y, uint32_t color);
+
+void marker_draw_glow(int x, int y, int frame);
+void marker_draw_socket(int x, int y, int frame, bool active, int dir);
+void marker_draw_arrow(int x, int y, int distance, int dir);
+void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir);
+unsigned int marker_arrow_grow_frames();
+void marker_draw_stem(int x, int y, int frame, int distance, int dir);
+
 
 #endif

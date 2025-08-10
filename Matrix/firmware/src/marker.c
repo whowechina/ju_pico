@@ -87,7 +87,7 @@ void marker_draw(int x, int y, int marker, marker_mode_t mode, uint32_t elapsed)
         .image = ani->image,
     };
 
-    image_draw(x, y, &img, frame);
+    image_draw(x, y, &img, frame, 255, 0);
 }
 
 void marker_clear(int x, int y, uint32_t color)
@@ -97,4 +97,111 @@ void marker_clear(int x, int y, uint32_t color)
             hub75_blend(x + i, y + j, color);
         }
     }
+}
+
+// "down", "up", "right", "left"
+const uint8_t dir_rotate[4] = {0, 2, 3, 1};
+
+static void draw_frame(int x, int y, const animation_t *ani, int frame, uint8_t alpha, uint8_t dir)
+{
+    if (ani->frame_num == 0) {
+        return;
+    }
+
+    const image_t img = {
+        .color_depth = ani->color_depth,
+        .alpha_depth = ani->alpha_depth,
+        .width = ani->image_size,
+        .height = ani->image_size * ani->frame_num,
+        .frame_num = ani->frame_num,
+        .palette = ani->palette,
+        .alpha = ani->alpha,
+        .image = ani->image,
+    };
+
+    image_draw(x, y, &img, frame % ani->frame_num, alpha, dir_rotate[dir]);
+}
+
+
+void marker_draw_glow(int x, int y, int frame)
+{
+    draw_frame(x, y, &trail_res.marker_glow, frame, 48, 0);
+}
+
+void marker_draw_socket(int x, int y, int frame, bool active, int dir)
+{
+    if (active) {
+        draw_frame(x, y, &trail_res.marker_on, frame, 128, dir);
+    } else {
+        draw_frame(x, y, &trail_res.marker_off, frame, 128, dir);
+    }
+}
+
+void marker_draw_arrow(int x, int y, int distance, int dir)
+{
+    int draw_x = x;
+    int draw_y = y;
+    switch (dir) {
+        case 0: // down
+            draw_y -= distance;
+            break;
+        case 1: // up
+            draw_y += distance;
+            break;
+        case 2: // right
+            draw_x -= distance;
+            break;
+        case 3: // left
+            draw_x += distance;
+            break;
+    }
+
+    draw_frame(draw_x, draw_y, &trail_res.arrow, 0, 255, dir);
+}
+
+void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir)
+{
+    int draw_x = x;
+    int draw_y = y;
+    switch (dir) {
+        case 0: // down
+            draw_y -= distance;
+            break;
+        case 1: // up
+            draw_y += distance;
+            break;
+        case 2: // right
+            draw_x -= distance;
+            break;
+        case 3: // left
+            draw_x += distance;
+            break;
+    }
+    draw_frame(draw_x, draw_y, &trail_res.arrow_grow, frame, 255, dir);
+}
+
+unsigned int marker_arrow_grow_frames()
+{
+    return trail_res.arrow_grow.frame_num;
+}
+
+void marker_draw_stem(int x, int y, int frame, int distance, int dir)
+{
+    int draw_x = x;
+    int draw_y = y;
+    switch (dir) {
+        case 0: // down
+            draw_y -= distance;
+            break;
+        case 1: // up
+            draw_y += distance;
+            break;
+        case 2: // right
+            draw_x -= distance;
+            break;
+        case 3: // left
+            draw_x += distance;
+            break;
+    }
+    draw_frame(draw_x, draw_y, &trail_res.stem, frame, 128, dir);
 }
