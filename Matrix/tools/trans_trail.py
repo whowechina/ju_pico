@@ -356,7 +356,7 @@ def save_as_c_header(output_dir, name, all_images, alpha_bits, color_depth=4, ta
         f.write(f"#define DEF_{name}{suffix} {{ \\\n")
 
         # Generate each animation field according to trail_res_t structure
-        trail_types = ['stem', 'marker_off', 'marker_on', 'marker_glow', 'arrow_tail', 'arrow', 'arrow_zoom']
+        trail_types = ['stem', 'marker_off', 'marker_on', 'marker_glow', 'arrow_tail', 'arrow', 'arrow_grow']
         
         for i, trail_type in enumerate(trail_types):
             if trail_type in all_images:
@@ -488,7 +488,7 @@ def process_trail_directory(input_dir, output_dir, frame_size=13, color_depth=4,
         'marker_glow': {'pattern': 'LN0001_M3', 'range': (0, 31)}, # M300-M331
         'arrow_tail': {'pattern': 'LN0001_M4', 'range': (0, 31)},  # M400-M431
         'arrow': {'pattern': 'LN0001_M5', 'range': (0, 31)},       # M500-M531
-        'arrow_zoom': {'pattern': 'LN0001_M6', 'range': (0, 31)}   # M600-M631
+        'arrow_grow': {'pattern': 'LN0001_M6', 'range': (0, 31)}   # M600-M631
     }
 
     target_size = (frame_size, frame_size)
@@ -572,7 +572,7 @@ if __name__ == "__main__":
         print("  LN0001_M300.png, LN0001_M301.png, ..., LN0001_M331.png (marker_glow)")
         print("  LN0001_M400.png, LN0001_M401.png, ..., LN0001_M431.png (arrow_tail)")
         print("  LN0001_M500.png, LN0001_M501.png, ..., LN0001_M531.png (arrow)")
-        print("  LN0001_M600.png, LN0001_M601.png, ..., LN0001_M631.png (arrow_zoom)")
+        print("  LN0001_M600.png, LN0001_M601.png, ..., LN0001_M631.png (arrow_grow)")
         sys.exit(1)
 
     input_dir = sys.argv[1]
