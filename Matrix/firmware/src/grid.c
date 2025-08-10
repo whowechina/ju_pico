@@ -242,35 +242,14 @@ void grid_update()
     }
 }
 
-static void draw_trail_line(int x, int y, const trail_t *trail)
+static int triangle_wave(int low, int high, int elapsed, int cycle_ms)
 {
-    int sx = x;
-    int sy = y;
-    int dx = sx;
-    int dy = sy;
-
-    int len = trail->remain;
-
-    int real_len = (len * GRID_PITCH * trail->len) / trail->span;
-    switch (trail->dir) {
-        case 0: // down
-            sy -= real_len;
-            break;
-        case 1: // up
-            dy += real_len;
-            break;
-        case 2: // right
-            sx -= real_len;
-            break;
-        case 3: // left
-            dx += real_len;
-            break;
-    }
-
-    for (int i = sx; i <= dx; i++) {
-        for (int j = sy; j <= dy; j++) {
-            hub75_blend(i, j, hub75_argb(0xc0, 250, 200, 200));
-        }
+    int amp = high - low;
+    int pos = (elapsed / 1000 % cycle_ms) * (amp * 2) / cycle_ms;
+    if (pos <= amp) {
+        return low + pos;
+    } else {
+        return high - (pos - amp);
     }
 }
 
@@ -280,12 +259,14 @@ static void trail_draw(int x, int y, const trail_t *trail)
         return;
     }
 
-    int frame = 0;
-
     uint64_t now = time_us_64();
+    uint64_t elapsed = now - trail->start;
 
+    int frame = 0;
+    int alpha = 255;
     if (trail->moving) {
-        frame = (now - trail->start) / 33333;
+        frame = elapsed / 33333;
+        alpha = triangle_wave(64, 255, elapsed, 533);
     }
 
     marker_draw_socket(x, y, 0, trail->moving, trail->dir);
@@ -293,22 +274,19 @@ static void trail_draw(int x, int y, const trail_t *trail)
     int distance = (trail->remain * trail->len * GRID_PITCH) / trail->span;
 
     if (distance > GRID_PITCH) {
-        marker_draw_stem(x, y, frame, GRID_PITCH, trail->dir);
+        marker_draw_stem(x, y, frame, GRID_PITCH, trail->dir, alpha);
     }
 
     if (distance > GRID_PITCH * 2)
     {
-        marker_draw_stem(x, y, frame, GRID_PITCH * 2, trail->dir);
+        marker_draw_stem(x, y, frame, GRID_PITCH * 2, trail->dir, alpha);
     }
 
     if (frame < marker_arrow_grow_frames()) {
-        marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir);
+        marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir, alpha);
     } else {
-        marker_draw_arrow(x, y, distance, trail->dir);
+        marker_draw_arrow(x, y, distance, trail->dir, alpha);
     }
-
-
-    if (0) draw_trail_line(x + GRID_SIZE / 2, y + GRID_SIZE / 2, trail);
 
     if (trail->moving) {
         marker_draw_glow(x, y, frame);

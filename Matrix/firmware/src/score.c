@@ -28,7 +28,7 @@ void score_draw_combo()
 
     char str[10];
     snprintf(str, sizeof(str), "%lu", score_ctx.combo);
-    uint32_t color = matrix_cfg->game.color.combo | 0xff000000;
+    uint32_t color = matrix_cfg->game.color.combo | 0x80000000;
     uint32_t x_pos = hub75_width() / 2;
     uint32_t y_pos = hub75_height() / 4 + 1;
 

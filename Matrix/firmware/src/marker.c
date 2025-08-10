@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 
 #include "hub75.h"
@@ -125,7 +126,7 @@ static void draw_frame(int x, int y, const animation_t *ani, int frame, uint8_t 
 
 void marker_draw_glow(int x, int y, int frame)
 {
-    draw_frame(x, y, &trail_res.marker_glow, frame, 48, 0);
+    draw_frame(x, y, &trail_res.marker_glow, frame, 128, 0);
 }
 
 void marker_draw_socket(int x, int y, int frame, bool active, int dir)
@@ -137,47 +138,40 @@ void marker_draw_socket(int x, int y, int frame, bool active, int dir)
     }
 }
 
-void marker_draw_arrow(int x, int y, int distance, int dir)
+static int x_offset(int x, int distance, int dir)
 {
-    int draw_x = x;
-    int draw_y = y;
-    switch (dir) {
-        case 0: // down
-            draw_y -= distance;
-            break;
-        case 1: // up
-            draw_y += distance;
-            break;
-        case 2: // right
-            draw_x -= distance;
-            break;
-        case 3: // left
-            draw_x += distance;
-            break;
+    if (dir == 2) {
+        return x - distance;
     }
-
-    draw_frame(draw_x, draw_y, &trail_res.arrow, 0, 255, dir);
+    if (dir == 3) {
+        return x + distance;
+    }
+    return x;
 }
 
-void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir)
+static int y_offset(int y, int distance, int dir)
 {
-    int draw_x = x;
-    int draw_y = y;
-    switch (dir) {
-        case 0: // down
-            draw_y -= distance;
-            break;
-        case 1: // up
-            draw_y += distance;
-            break;
-        case 2: // right
-            draw_x -= distance;
-            break;
-        case 3: // left
-            draw_x += distance;
-            break;
+    if (dir == 0) {
+        return y - distance;
     }
-    draw_frame(draw_x, draw_y, &trail_res.arrow_grow, frame, 255, dir);
+    if (dir == 1) {
+        return y + distance;
+    }
+    return y;
+}
+
+void marker_draw_arrow(int x, int y, int distance, int dir, int alpha)
+{
+    int draw_x = x_offset(x, distance, dir);
+    int draw_y = y_offset(y, distance, dir);
+    draw_frame(draw_x, draw_y, &trail_res.arrow, 0, alpha, dir);
+}
+
+void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir, int alpha)
+{
+    int draw_x = x_offset(x, distance, dir);
+    int draw_y = y_offset(y, distance, dir);
+    draw_frame(draw_x, draw_y, &trail_res.arrow_grow, frame, alpha, dir);
 }
 
 unsigned int marker_arrow_grow_frames()
@@ -185,23 +179,9 @@ unsigned int marker_arrow_grow_frames()
     return trail_res.arrow_grow.frame_num;
 }
 
-void marker_draw_stem(int x, int y, int frame, int distance, int dir)
+void marker_draw_stem(int x, int y, int frame, int distance, int dir, int alpha)
 {
-    int draw_x = x;
-    int draw_y = y;
-    switch (dir) {
-        case 0: // down
-            draw_y -= distance;
-            break;
-        case 1: // up
-            draw_y += distance;
-            break;
-        case 2: // right
-            draw_x -= distance;
-            break;
-        case 3: // left
-            draw_x += distance;
-            break;
-    }
-    draw_frame(draw_x, draw_y, &trail_res.stem, frame, 128, dir);
+    int draw_x = x_offset(x, distance, dir);
+    int draw_y = y_offset(y, distance, dir);
+    draw_frame(draw_x, draw_y, &trail_res.stem, frame, alpha, dir);
 }

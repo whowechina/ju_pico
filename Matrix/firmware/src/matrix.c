@@ -46,7 +46,7 @@ static void run_idle()
     if (now / 100 % 50 == 0) {
         if (!grid_is_active(3, 1)) {
             grid_schedule(3, 1, true);
-            grid_attach_trail(3, 1, 2, 2, 666, true);
+            grid_attach_trail(3, 1, 2, 3, 1666, true);
         }
     } else if (now / 100 % 50 == 8) {
         if (grid_is_started(3, 1)) {

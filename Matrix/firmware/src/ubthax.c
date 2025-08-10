@@ -190,7 +190,6 @@ static void process_ubthax_event(const ubthax_data_t *data)
         case GREAT:
         case PERFECT:
             return;
-        case JUDGE_DROP:
         case JUDGE_MISS:
             grid_judge(col, row, MARKER_MISS);
             score_set_score(data->score.score);
@@ -215,13 +214,19 @@ static void process_ubthax_event(const ubthax_data_t *data)
             score_set_combo(data->score.combo);
             sprintf(info, "great");
             break;           
-         case JUDGE_PERFECT:
+        case JUDGE_PERFECT:
             grid_judge(col, row, MARKER_PERFECT);
             score_set_combo(data->score.combo);
             score_set_score(data->score.score);
             sprintf(info, "perfect");
-            break;           
-         case LONG_TRAIL_DRAW_FIRST:
+            break;
+        case JUDGE_DROP:
+            grid_judge(col, row, MARKER_PERFECT);
+            score_set_combo(data->score.combo);
+            score_set_score(data->score.score);
+            sprintf(info, "maybe perfect");
+            break;
+        case LONG_TRAIL_DRAW_FIRST:
             grid_attach_trail(col, row, data->long_dir, data->long_len, data->long_span, true);
             sprintf(info, "trail span:%d", data->long_span);
             break;

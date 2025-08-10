@@ -55,10 +55,10 @@ void marker_clear(int x, int y, uint32_t color);
 
 void marker_draw_glow(int x, int y, int frame);
 void marker_draw_socket(int x, int y, int frame, bool active, int dir);
-void marker_draw_arrow(int x, int y, int distance, int dir);
-void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir);
+void marker_draw_arrow(int x, int y, int distance, int dir, int alpha);
+void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir, int alpha);
 unsigned int marker_arrow_grow_frames();
-void marker_draw_stem(int x, int y, int frame, int distance, int dir);
+void marker_draw_stem(int x, int y, int frame, int distance, int dir, int alpha);
 
 
 #endif
