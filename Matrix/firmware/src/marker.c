@@ -176,6 +176,7 @@ void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir, int 
 
 unsigned int marker_arrow_grow_frames()
 {
+    //  there're 8 frames in the resource, but seems only first 4 are valid.
     return 4; // trail_res.arrow_grow.frame_num;
 }
 

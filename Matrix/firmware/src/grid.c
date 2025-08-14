@@ -282,10 +282,11 @@ static void trail_draw(int x, int y, const trail_t *trail)
         marker_draw_stem(x, y, frame, GRID_PITCH * 2, trail->dir, alpha);
     }
 
-    if (frame < marker_arrow_grow_frames()) {
-        marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir, alpha);
-    } else {
+    bool skip_growing = trail->span < 90; // not enough for growing animation
+    if (skip_growing || (frame >= marker_arrow_grow_frames())) {
         marker_draw_arrow(x, y, distance, trail->dir, 255);
+    } else {
+        marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir, alpha);
     }
 
     if (trail->moving) {
