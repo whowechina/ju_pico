@@ -285,7 +285,7 @@ static void trail_draw(int x, int y, const trail_t *trail)
     if (frame < marker_arrow_grow_frames()) {
         marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir, alpha);
     } else {
-        marker_draw_arrow(x, y, distance, trail->dir, alpha);
+        marker_draw_arrow(x, y, distance, trail->dir, 255);
     }
 
     if (trail->moving) {
@@ -386,6 +386,14 @@ void grid_update_trail(int col, int row, float ratio)
         trail->start = time_us_64();
         int overtime = ratio * 3333 * trail->span;
         trail->start -= overtime / trail->len;
+    }
+
+    // slowly adjust local trail timing to cope with game-side timing
+    int sync_remain = (int)(ratio * trail->span) / trail->len;
+    if (sync_remain > trail->remain) {
+        trail->span++;
+    } else if (sync_remain < trail->remain) {
+        trail->span--;
     }
 }
 

@@ -176,7 +176,7 @@ void marker_draw_arrow_grow(int x, int y, int frame, int distance, int dir, int 
 
 unsigned int marker_arrow_grow_frames()
 {
-    return trail_res.arrow_grow.frame_num;
+    return 4; // trail_res.arrow_grow.frame_num;
 }
 
 void marker_draw_stem(int x, int y, int frame, int distance, int dir, int alpha)
