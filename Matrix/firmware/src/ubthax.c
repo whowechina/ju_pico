@@ -185,10 +185,12 @@ static void process_ubthax_event(const ubthax_data_t *data)
             grid_schedule(col, row, false);
             return;
         case MISS:
+            return;
         case POOR:
         case GOOD:
         case GREAT:
         case PERFECT:
+            grid_punch(col, row, data->state - POOR);
             return;
         case JUDGE_MISS:
             grid_judge(col, row, MARKER_MISS);

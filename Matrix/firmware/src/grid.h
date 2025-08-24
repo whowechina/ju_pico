@@ -18,6 +18,7 @@ void grid_preview_reset();
 void grid_render_preview(uint8_t alpha);
 
 void grid_schedule(int col, int row, bool override);
+void grid_punch(int col, int row, int window); // window: 0-poor, 1-good, 2-great, 3-perfect
 void grid_judge(int col, int row, marker_mode_t mode);
 void grid_abort(int col, int row);
 

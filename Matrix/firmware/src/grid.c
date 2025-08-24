@@ -40,6 +40,8 @@ typedef struct {
     uint64_t schedule;
     uint64_t start;
     trail_t trail;
+    int last_window;
+    int window_seq;
 } grid_cell_t;
 
 static struct {
@@ -66,6 +68,8 @@ void grid_test(int col, int row, int marker)
     cell->schedule = 0;
     cell->start = time_us_64();
     cell->started = true;
+    cell->last_window = -1;
+    cell->window_seq = 0;
 }
 
 void grid_preview(int col, int row)
@@ -103,6 +107,40 @@ void grid_schedule(int col, int row, bool override)
     cell->trail.moving = false;
     cell->started = false;
     cell->schedule = time_us_64() + matrix_cfg->game.start_delay_ms * 1000;
+}
+
+void grid_punch(int col, int row, int window)
+{
+    if (out_of_bound(col, row)) {
+        return;
+    }
+
+    grid_cell_t *cell = &grid_ctx.grid[col][row];
+    if (!cell->started) {
+        return;
+    }
+
+    if (cell->last_window == window) {
+        return; // only punch (sync) when window changes
+    }
+    if (cell->window_seq >= 7) {
+        return; // only allow 7 windows
+    }
+
+    cell->last_window = window;
+
+    const static short windows[] = { -155, -48, -24, -12, 24, 48, 85};
+    const static char *state_str[] = {"PR", "GD", "GR", "PF", "GR", "GD", "PR"};
+
+    uint64_t now = time_us_64();
+    int local_tick = (now - cell->start) / 2750 - 160; // assuming 2.75ms tick
+    int sync_tick =  windows[cell->window_seq];
+
+    if (col == 0) {
+        printf("%5llu(%5llu): %d%2s: %4d|%d\n",  now / 1000 % 100000, now / 2750,
+               row, state_str[cell->window_seq], local_tick, sync_tick);
+    }
+    cell->window_seq++;
 }
 
 void grid_judge(int col, int row, marker_mode_t mode)
@@ -191,6 +229,8 @@ static void update_cell(grid_cell_t *cell, int col, int row)
         cell->schedule = 0;
         cell->start = update_time;
         cell->started = true;
+        cell->last_window = -1;
+        cell->window_seq = 0;
         return;
     }
 
@@ -282,11 +322,10 @@ static void trail_draw(int x, int y, const trail_t *trail)
         marker_draw_stem(x, y, frame, GRID_PITCH * 2, trail->dir, alpha);
     }
 
-    bool skip_growing = trail->span < 90; // not enough for growing animation
-    if (skip_growing || (frame >= marker_arrow_grow_frames())) {
-        marker_draw_arrow(x, y, distance, trail->dir, 255);
-    } else {
+    if (frame < marker_arrow_grow_frames()) {
         marker_draw_arrow_grow(x, y, frame, trail->len * GRID_PITCH, trail->dir, alpha);
+    } else {
+        marker_draw_arrow(x, y, distance, trail->dir, 255);
     }
 
     if (trail->moving) {
