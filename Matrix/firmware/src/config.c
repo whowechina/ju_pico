@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "save.h"
+#include "resource.h"
 
 matrix_cfg_t *matrix_cfg;
 
@@ -43,6 +44,9 @@ static inline bool in_range(int val, int min, int max)
 
 static void config_loaded()
 {
+    if (matrix_cfg->game.marker >= marker_count) {
+        matrix_cfg->game.marker = 0;
+    }
 }
 
 void config_changed()

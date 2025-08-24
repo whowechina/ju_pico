@@ -4,6 +4,7 @@
 #include "marker.h"
 #include "font.h"
 
+// Define DEBUG to include less resource, so to reduce the build time
 //#define DEBUG
 
 #ifdef BOARD_JU_MATRIX
