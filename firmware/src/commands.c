@@ -49,6 +49,7 @@ static void disp_hid()
 {
     printf("[HID]\n");
     printf("  Rotate: %d degree\n", (ju_cfg->hid.rotate % 4) * 90);
+    printf("  Report Rotate: %s\n", ju_cfg->hid.report_rotate ? "on" : "off");
 }
 
 #define ARRAYSIZE(x) (sizeof(x) / sizeof(x[0]))
@@ -129,6 +130,25 @@ static void handle_rotate(int argc, char *argv[])
     config_changed();
 }
 
+static void handle_report_rotate(int argc, char *argv[])
+{
+    const char *usage = "Usage: report_rotate <on|off>\n";
+    if (argc != 1) {
+        printf(usage);
+        return;
+    }
+
+    const char *choicses[] = {"on", "off"};
+    int axis = cli_match_prefix(choicses, ARRAYSIZE(choicses), argv[0]);
+    if (axis < 0) {
+        printf(usage);
+        return;
+    }
+
+    ju_cfg->hid.report_rotate = (axis == 0);
+    config_changed();
+}
+
 static void handle_stat(int argc, char *argv[])
 {
     printf("[STAT]\n");
@@ -148,6 +168,7 @@ void commands_init()
     cli_register("display", handle_display, "Display all config.");
     cli_register("level", handle_level, "Set LED brightness level.");
     cli_register("rotate", handle_rotate, "Set button rotate angle.");
+    cli_register("report_rotate", handle_report_rotate, "Set rotate report on axis.");
     cli_register("stat", handle_stat, "Display statistics.");
     cli_register("save", handle_save, "Save config to flash.");
     cli_register("factory", config_factory_reset, "Reset everything to default.");

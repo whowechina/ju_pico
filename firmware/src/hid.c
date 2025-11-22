@@ -46,14 +46,20 @@ static void report_usb_hid()
         hid_report.buttons = do_rotate(button_read() & 0xffff);
         hid_report.aux = button_read() >> 16;
 
-        const struct {
-            uint8_t x;
-            uint8_t y;
-        } dirs[] = { {0, 127}, {127, 0}, {255, 127}, {127, 255}};
+        if (ju_cfg->hid.report_rotate) {
+            const struct {
+                uint8_t x;
+                uint8_t y;
+            } dirs[] = { {0, 127}, {127, 0}, {255, 127}, {127, 255}};
 
-        uint8_t rotate = ju_cfg->hid.rotate % 4;
-        hid_report.axis[0] = dirs[rotate].x;
-        hid_report.axis[1] = dirs[rotate].y;
+            uint8_t rotate = ju_cfg->hid.rotate % 4;
+            hid_report.axis[0] = dirs[rotate].x;
+            hid_report.axis[1] = dirs[rotate].y;
+        }
+        else {
+            hid_report.axis[0] = 127;
+            hid_report.axis[1] = 127;
+        }
 
         uint64_t now = time_us_64();
         if ((memcmp(&hid_reported, &hid_report, sizeof(hid_report)) != 0) ||

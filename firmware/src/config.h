@@ -25,6 +25,7 @@ typedef struct __attribute__((packed)) {
     } sense;
     struct {
         uint8_t rotate;
+        bool report_rotate;
     } hid;
     uint8_t reserved[8];
 } ju_cfg_t;

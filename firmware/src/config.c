@@ -25,6 +25,7 @@ static ju_cfg_t default_cfg = {
     },
     .hid = {
         .rotate = 0,
+        .report_rotate = true,
     },
 };
 
