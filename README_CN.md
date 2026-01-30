@@ -4,7 +4,7 @@
 <img src="doc/main.jpg" width="47%">
 
 特性：
-* 专为 15.6" 便携显示器设计。
+* 有两个版本，Ju Pico 专为 15.6" 便携显示器设计，Ju Pico+ 专为 21.5" 显示器设计。
 * 尽管很小，但还原了街机的感觉。
 * 可以放置 4 种不同的方向（旋转）。
 * 命令行配置。
@@ -46,7 +46,7 @@ https://discord.gg/M8f2PPQFEA
 
 ## 如何制作 Ju Pico
 ### PCB 及元器件
-* 去 JLCPCB 下单，使用最新的 `主控 PCB` 和 `按钮 PCB`，gerber 文件分别是 `Production\PCB\ju_io_xxx.zip` 和 `Production\PCB\ju_button_xxx.zip`，常规的 FR-4 板材，黑色，**1.6mm** 厚度。
+* 去 JLCPCB 下单，使用最新的 `主控 PCB` 和 `按钮 PCB`，gerber 文件分别是 `Production\PCB\ju_io_xxx.zip` 和 `Production\PCB\ju_button_xxx.zip`，常规的 FR-4 板材，黑色，**1.6mm** 厚度。对于 Ju Pico+，请使用 `button215` 版本。
 * 1x Rasberry Pico Pi Pico 或者兼容的克隆板（U1）。  
   https://www.raspberrypi.com/products/raspberry-pi-pico
 * 1x USB Type-C 插座 (918-418K2023S40001 或 KH-TYPE-C-16P)
@@ -55,7 +55,6 @@ https://discord.gg/M8f2PPQFEA
   https://tech.alpsalpine.com/e/products/detail/SKPMAPE010/
 * 1x 0603 0.1uF 电容（0.1~1uF 都可以）（C1）。
 * 2x 0603 5.1kohm 电阻（R1, R2）用于 USB。
-* 2x 0603 10ohm 电阻（1-20ohm 都可以）（R3, R4）。
 * 8x JST-SH1.0 5P 贴片插座 (`主控 PCB` 上的 J1 到 J4，以及 `按钮 PCB` 上的插座）。
 * 1x JST-SH1.0 3P 贴片插座（J5), 可选，也许未来可扩展 HID 灯光。
 * 4x JST-SH1.0 双头 5P 排线（引脚一对一，经常被叫做双头反向），2 根 20 厘米的，2 根 30 厘米的。
@@ -94,7 +93,8 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 * 注意文件内的尺寸单位都是毫米，不是英寸。
 
 #### 打印部件
-* 框体你有两个选择，选择其一即可。
+* 框体你有三个选择，推荐热熔螺母版本。
+  * 将螺丝拧到热熔螺母上：`Production\3DPrint\ju_pico_frame_inserts.stl`，黑色。请先安装热熔螺母。
   * 直接将螺丝拧入打印材料：`Production\3DPrint\ju_pico_frame.stl`，黑色。组装更容易，但螺丝容易磨损或者拧坏打印材料。
   * 将螺丝拧到六角螺母上：`Production\3DPrint\ju_pico_frame_hexnut.stl`，黑色。组装稍微复杂一点，但螺母不容易磨损。
 * 盖板: `Production\3DPrint\ju_pico_panel.stl`, 黑色，倒置打印，开启支撑（最好用专门的支撑材料）。
@@ -105,7 +105,7 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 * 注意：文件名带 "bambu" 的是给 Bambu Studio 准备的工程文件。
 * 警告：请不要混用 2024 年 12 月之前和之后的文件，因为我在 2024 年 12 月初做了一些不兼容改动。
 
-### CNC 铝合金加工（可选）
+### CNC 铝合金加工（可选，仅 Ju Pico 可用）
 * 如果你喜欢那种金属质感并且不介意多花很多钱，你可以选择用铝合金加工框体、面板和标志部分。
 * 可以选择喷砂和阳极氧化来让它更好看一点。
 * STEP 文件在 `Production\CNC` 文件夹，2D 的 DWG 文件是框体部分的螺纹攻丝图。
@@ -114,8 +114,10 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
 ### 组装
 #### 其他所需材料
 1. 透明软性胶或者 UV 固化胶。警告：避免使用任何氰基胶，比如 502 胶。任何有类似气味的胶也要避免，因为它们会在亚克力上留下白色雾化痕迹。
-2. 40x **M2\*6mm**（普通框体用）或者 **M2\*7mm**（六角螺母框体用）螺丝，黑色，用于固定面板。
+2. 40x **M2\*6mm**（普通框体用）或者 **M2\*7mm**（六角螺母框体用或热熔螺母框体用）螺丝，黑色，用于固定面板。
 3. 4x **M3\*8mm** 螺丝，黑色，用于标志面板。
+4. 40x **M2** 六角螺母（仅六角螺母框体版本需要）。
+5. 40x **M2\*3mm\*3mm** 热熔螺母（仅热熔螺母框体版本需要）。
 
 ### 步骤
 1. 把按钮帽粘到按钮座上。小心不要让胶水弄脏亚克力。查看下面的 "注意" 部分了解更多细节。  
@@ -146,7 +148,7 @@ Ju Pico 有 16 个按钮，所以你需要订购 16 个按钮帽。
   https://googlechromelabs.github.io/serial-terminal/
 
 ### 使用
-* 把 Ju Pico 贴到一个 15.6 英寸的便携显示器上，需要使用 VHB 无痕胶带（国内也叫“点点胶”）。在显示器的外框上用 3 到 4 片就够，注意不要粘到屏幕上。你可以选择你最喜欢的朝向。
+* 把 Ju Pico 贴到一个 15.6 英寸的便携显示器上（或者 Ju Pico+ 贴到一个 21.5 英寸的显示器上），需要使用 VHB 无痕胶带（国内也叫“点点胶”）。在显示器的外框上用 3 到 4 片就够，注意不要粘到屏幕上。你可以选择你最喜欢的朝向。
 * 按下最靠近 'J' 字母（“Ju Pico” 标志）的辅助按钮和实际摆放下的最左上角的主按钮来切换按键顺序，使其与你的朝向匹配。HID 汇报的模拟摇杆的位置指示了 Logo 应该在哪侧。你可以使用下面的网站查看摇杆状态。  
   https://greggman.github.io/html5-gamepad-test/
 

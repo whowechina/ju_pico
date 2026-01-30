@@ -4,7 +4,7 @@
 <img src="doc/main.jpg" width="47%">
 
 Features:
-* Designed for 15.6" portable monitor.
+* There're two versions. Ju Pico is designed for 15.6" portable monitor, Ju Pico+ is designed for 21.5" monitor.
 * It's small but closely replicates the feel of the arcade.
 * Can be placed in 4 different orientations (rotations).
 * Command line for configurations.
@@ -47,7 +47,7 @@ https://discord.gg/M8f2PPQFEA
 
 ## HOW TO BUILD JU PICO
 ### PCB and Components
-* Go JLCPCB and make order with the gerber zip files (latest `Production\PCB\ju_io_xxx.zip` and `Production\PCB\ju_button_xxx.zip`), regular FR-4 board, black color, **1.6mm** thickness.
+* Go JLCPCB and make order with the gerber zip files (latest `Production\PCB\ju_io_xxx.zip` and `Production\PCB\ju_button_xxx.zip`), regular FR-4 board, black color, **1.6mm** thickness. For Ju Pico+, please use `button215` version.
 * 1x Raspberry Pico Pi Pico or pin-to-pin compatible clones (U1).  
   https://www.raspberrypi.com/products/raspberry-pi-pico
 * 1x USB Type-C socket (918-418K2023S40001 or KH-TYPE-C-16P)
@@ -56,7 +56,6 @@ https://discord.gg/M8f2PPQFEA
   https://tech.alpsalpine.com/e/products/detail/SKPMAPE010/
 * 1x 0603 0.1uF (0.1~1uF all fine) capacitor (C1).
 * 2x 0603 5.1kohm resistors (R1, R2) for the USB.
-* 2x 0603 10ohm resistor, (1-20ohm all work fine) (R3, R4).
 * 8x JST-SH1.0 5-pin SMD connectors (J1 to J4 on IO PCB, and 4 others on button PCBs).
 * 1x JST-SH1.0 3-pin SMD connector (J5), optional for future HID light expansion.
 * 4x JST-SH1.0 dual-end 5-pin cables (pin 1 to pin 1 mapping): 2 cables of 20cm length, and 2 cables of 30cm length.
@@ -95,7 +94,9 @@ Here's what it looks like.
 * Files are always in millimeter unit, not inch.
 
 #### Parts
-* You have two options for the Frame part, choose either one.
+* Note: if you want to build Ju Pico+, please use the files with "+" in the filename.
+* You have 3 options for the Frame part, heatset insert version is recommended.
+  * Screws are threaded into heatset inserts: `Production\3DPrint\ju_pico_frame_inserts.stl`, black. Please install the heat-set inserts first.
   * Screws are directly threaded into the printed material: `Production\3DPrint\ju_pico_frame.stl`, black. Assembly is easier but the screws may wear out the material over time.
   * Screws are threaded into the hex nuts: `Production\3DPrint\ju_pico_frame_hexnut.stl`, black. Assembly is a bit more complicated but the screws won't wear out the material.
 * Panel: `Production\3DPrint\ju_pico_panel.stl`, black, print up-side-down with support (use special support material if possible).
@@ -106,7 +107,7 @@ Here's what it looks like.
 * Note: Files with "bambu" in the name are project files prepared for Bambu Studio.
 * CAUTION: Do not mix use files before and after December 2024, as I made some incompatible changes in early December 2024.
 
-### CNC Aluminum Processing (Optional)
+### CNC Aluminum Processing (Optional, only available for Ju Pico)
 * If you're into that sleek metal look and don't mind splurging a bit, you can get the frame, panel, and banner parts CNC machined from aluminum.
 * Sandblasting and anodizing can be chosen to make it look even better.
 * The STEP files are in `Production\CNC` folder, the 2D DWG file is the thread tapping drawing for the frame part.
@@ -115,8 +116,10 @@ Here's what it looks like.
 ### Assembly
 #### Other Materials Needed
 1. Clear soft/flexible glue or UV curing glue. WARNING: Avoid using any cyanoacrylate-based glue, such as 502. Any glue with a similar smell should also be avoided, as they will leave white smoke marks on the acrylic.
-2. 40x **M2\*6mm** (for regular frame) or **M2\*7mm** (for hex nut frame) screws, black, for the panel.
+2. 40x **M2\*6mm** (for regular frame) or **M2\*7mm** (for hex nut frame or heatset insert frame) screws, black, for the panel.
 3. 4x **M3\*8mm** screws, black, for the banner.
+4. 40x **M2** hex nuts (only for hex nut frame version).
+5. 40x **M2\*3mm\*3mm** heat-set inserts (only for heatset insert frame version).
 
 ### Step by Step
 1. Glue the button bodies to the button seats. Be careful don't let the glue ruin the acrylic. See the "Caution" section below for more details.  
@@ -147,7 +150,7 @@ Each 3D printer and filament has its own tolerance, as does the acrylic cutting 
   https://googlechromelabs.github.io/serial-terminal/
 
 ### Usage
-* Attach the Ju Pico to a 15.6-inch portable monitor using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
+* Attach the Ju Pico to a 15.6-inch portable monitor (or Ju Pico+ to a 21.5-inch monitor) using VHB residue-free adhesive tape. Use 3 to 4 small pieces on the monitor's frame, but avoid placing any on the screen. Position it in the orientation that best suits your needs.
 * Press the auxiliary button closest to letter 'j" of the logo "Ju Pico" together with the top left main button in the actual placement to set button order that matches your orientation. Analog joystick position in HID report indicates which side the logo should be. You can use the following website to see the joystick status.  
   https://greggman.github.io/html5-gamepad-test/
 
